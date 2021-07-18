@@ -31,3 +31,23 @@ func TestParseExcel(t *testing.T) {
 	}
 	logging.Logger.Debug(tableData)
 }
+
+func TestGetExcelData(t *testing.T) {
+	f, err := excelize.OpenFile("test.xlsx")
+	if err != nil {
+		logging.Logger.Error(err)
+	}
+	rows, err := f.GetRows(f.GetSheetName(0))
+	if err != nil {
+		logging.Logger.Error(err)
+	}
+	logging.Logger.Debug(len(rows))
+	var nameSlice []string
+	for _, row := range rows[1:] {
+		if row[18] == "未激活" {
+			nameSlice = append(nameSlice, row[1])
+		}
+	}
+	logging.Logger.Debug(nameSlice)
+	logging.Logger.Debug(len(nameSlice))
+}

@@ -1,13 +1,9 @@
 package common
 
-const (
-
-)
+const ()
 
 //RedisPrefixConst
-const (
-
-)
+const ()
 
 //code status
 const (
@@ -16,6 +12,8 @@ const (
 
 //urls
 const (
-	ExcelBaseUrl         = "/excel"
-	UploadExcel         = "/import"
+	ExcelBaseUrl    = "/excel"
+	UploadExcel     = "/import"
+	GetExcelData    = "/table"
+	GetInactiveUser = "/inactive/user"
 )
