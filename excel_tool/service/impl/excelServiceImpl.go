@@ -40,7 +40,8 @@ func (e *ExcelServiceImpl) GetInactiveUser(file *multipart.FileHeader, textarea 
 	for _, username := range inactiveUsers {
 		builder.WriteString("@")
 		builder.WriteString(username)
-		builder.WriteString(" ")
+		builder.WriteString(" ")
+
 	}
 	logging.Logger.Debug(builder.String())
 	return builder.String(), nil

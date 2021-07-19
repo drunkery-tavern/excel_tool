@@ -1,0 +1,11 @@
+[
+ [200,"EK","key down",[8,"Back",0]],
+ [100,"EK","key up",[8,"Back",0]],
+ [200,"EK","key down",[13,"Return",0]],
+ [100,"EK","key up",[13,"Return",0]],
+ [200,"EK","key down",[37,"Left",1]],
+ [100,"EK","key up",[37,"Left",1]]
+]
+
+
+
