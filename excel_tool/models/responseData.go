@@ -1,9 +1,13 @@
 package models
 
 type ResponseData struct {
-	SheetNameList []string     `json:"sheet_name_list"`
-	Sheet         *Sheet       `json:"sheet"`
-	SheetList     []*SheetList `json:"sheet_list"`
+	SheetNameList     []string     `json:"sheet_name_list"`
+	Sheet             *Sheet       `json:"sheet"`
+	SheetList         []*SheetList `json:"sheet_list"`
+	ColumnValue       string       `json:"columnValue"`
+	ExportColumnValue string       `json:"exportColumnValue"`
+	Result            string       `json:"result"`
+	Count             int          `json:"count"`
 }
 
 type Sheet struct {

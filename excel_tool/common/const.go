@@ -17,3 +17,7 @@ const (
 	GetExcelData    = "/table"
 	GetInactiveUser = "/inactive/user"
 )
+
+const (
+	FileSavePath = "./data/"
+)

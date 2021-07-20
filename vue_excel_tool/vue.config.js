@@ -10,11 +10,12 @@ proxyObj['/'] = {
     pathRewrite: {
         '^/': ''
     }
-}
+};
 module.exports = {
     devServer: {
         host: 'localhost',
-        port: 8080,
-        proxy: proxyObj
+        port: 8081,
+        proxy: proxyObj,
+        disableHostCheck: true,
     }
-}
+};

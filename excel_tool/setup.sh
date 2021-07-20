@@ -5,11 +5,11 @@ red='\e[31m'       #红
 light_red='\e[91m' #浅红
 res='\e[0m'
 # 进程名
-process="./bin/blog_go"
+process="./bin/excel_tool"
 #文件目录
-file_dir="./bin/blog_go"
+file_dir="./bin/excel_tool"
 #日志文件
-log="blog_go.log"
+log="excel_tool.log"
 
 setBuildEnv() {
   go env -w GOPROXY=https://goproxy.io,direct

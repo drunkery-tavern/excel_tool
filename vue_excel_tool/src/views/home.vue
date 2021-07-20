@@ -1,33 +1,36 @@
 <template>
     <div>
-        <el-card>
+        <el-card style="height: 100%">
             <div>
                 <div style="display: flex;justify-content: space-between">
                     <div>
                         <el-upload
-                                :show-file-list="false"
+                                :show-file-list="true"
                                 :before-upload="beforeUpload"
                                 :on-success="onSuccess"
                                 :on-error="onError"
                                 :disabled="importDataDisabled"
+                                :limit="1"
                                 style="display: inline-flex;margin-right: 8px"
                                 action="/excel/import">
                             <el-button :disabled="importDataDisabled" type="success" :icon="importDataBtnIcon">
                                 {{importDataBtnText}}
                             </el-button>
                         </el-upload>
+                    </div>
+                    <div v-show="false">
                         <el-button type="success" @click="exportData" icon="el-icon-download">
                             导出数据
                         </el-button>
                     </div>
                 </div>
             </div>
-            <div style="margin-top: 10px">
+            <!--<div style="margin-top: 10px">
 
-                <el-select
-                        v-model="radioValue"
-                        @change="changeValue"
-                        placeholder="请选择sheet表">
+                <el-select v-show="resultString.trim().length !== 0"
+                           v-model="radioValue"
+                           @change="changeValue"
+                           placeholder="请选择sheet表">
                     <el-option
                             v-for="(item,idx) in sheetList"
                             :key="item.sheet_index"
@@ -35,41 +38,46 @@
                             :value="item.sheet_index">
                     </el-option>
                 </el-select>
-            </div>
+            </div>-->
             <div style="margin-top: 10px">
-                <!--<el-tabs type="border-card">
-                    <el-tab-pane :key="item.name"
-                                 v-for="item in sheetNameList"
-                                 :label="item">-->
-                <u-table
-                        :data="tableData"
-                        use-virtual
-                        :row-height="rowHeight"
-                        :height="height"
-                        border
-                        v-loading="loading"
-                        element-loading-text="正在加载..."
-                        element-loading-spinner="el-icon-loading"
-                        element-loading-background="rgba(0, 0, 0, 0.8)"
-                        style="width: 100%">
-                    <u-table-column
-                            v-for="(item,index) in tableHeader"
-                            :key="index"
-                            align="center"
-                            :label="item"
-                            :resizable="item.resizable"
-                    >
-                        <template slot-scope="scope">
-                            {{scope.row[index]}}
-                        </template>
-                    </u-table-column>
-                </u-table>
+                <el-tabs type="border-card"
+                         :value="getActiveName(sheetList)"
+                         @tab-click="handleClick"
+                         v-show="showForm">
+                    <el-tab-pane style="width: 100%;height: 400px"
+                                 :key="item.sheet_index"
+                                 v-for="(item,idx) in sheetList"
+                                 :name="item.sheet_index.toString()"
+                                 :label="item.sheet_name">
+                        <u-table
+                                :data="tableData"
+                                use-virtual
+                                :row-height="rowHeight"
+                                :height="height"
+                                border
+                                v-loading="loading"
+                                element-loading-text="正在加载..."
+                                element-loading-spinner="el-icon-loading"
+                                element-loading-background="rgba(0, 0, 0, 0.8)"
+                                style="width: 100%">
+                            <u-table-column
+                                    v-for="(item,index) in tableHeader"
+                                    :key="index"
+                                    align="center"
+                                    :label="item"
+                                    :resizable="item.resizable"
+                            >
+                                <template slot-scope="scope">
+                                    {{scope.row[index]}}
+                                </template>
+                            </u-table-column>
+                        </u-table>
 
-                <!--</el-tab-pane>
-            </el-tabs>-->
+                    </el-tab-pane>
+                </el-tabs>
             </div>
             <div style="margin-top: 20px">
-                <el-form label-width="80px" ref="exportForm">
+                <el-form label-width="80px" ref="exportForm" v-show="showForm">
                     <el-form-item label="群成员">
                         <el-input style="width: 600px"
                                   type="textarea"
@@ -78,7 +86,7 @@
                         </el-input>
                     </el-form-item>
                     <el-form-item label="匹配的列">
-                        <el-select v-model="columnValue" placeholder="请选择">
+                        <el-select v-model="columnValue" disabled placeholder="请选择">
                             <el-option
                                     v-for="(item,index) in tableHeader"
                                     :key="index"
@@ -88,7 +96,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="导出的列">
-                        <el-select v-model="exportColumnValue" placeholder="请选择">
+                        <el-select v-model="exportColumnValue" disabled placeholder="请选择">
                             <el-option
                                     v-for="(item,index) in tableHeader"
                                     :key="index"
@@ -99,16 +107,26 @@
                     </el-form-item>
                 </el-form>
 
-                <el-button type="primary" icon="el-icon-s-check" @click="doExport">匹配未激活用户
+                <el-button v-show="showForm" type="primary" icon="el-icon-s-check" @click="doExport">匹配未激活用户
                 </el-button>
-                <div>
-                    <el-input v-show="this.resultString.length !== 0" style="margin-top: 20px;width: 30%"
+                <div v-show="this.resultString.length !== 0">
+                    <el-input style="margin-top: 20px;width: 40%"
                               type="textarea"
                               autosize
                               readonly
                               placeholder="匹配结果将在此处显示"
                               v-model="resultString">
                     </el-input>
+                    <span style="font-size: 12px;margin-left: 10px">该群共 {{ count }} 人未激活</span>
+                </div>
+                <div style="margin-top: 20px" v-show="this.resultString.length !== 0">
+                    <el-button
+                            size="mini"
+                            type="primary"
+                            v-clipboard:copy="resultString"
+                            v-clipboard:success="copySuccess"
+                            v-clipboard:error="copyError">复制
+                    </el-button>
                 </div>
             </div>
         </el-card>
@@ -127,43 +145,78 @@
                 textarea: "",
                 height: 400,
                 rowHeight: 55,
-                radioValue: "",
-                columnValue: "",
-                exportColumnValue: "",
+                columnValue: "用户状态",
+                exportColumnValue: "微信昵称",
                 importDataBtnText: '导入数据',
                 importDataBtnIcon: 'el-icon-upload2',
                 importDataDisabled: false,
                 loading: false,
-                total: 0,
+                count: 0,
                 tableHeader: [],
                 tableData: [],
                 sheetNameList: [],
-                sheetList: [],
+                sheetList: [{
+                    sheet_index: 0,
+                    sheet_name: ""
+                }],
                 file: null,
-
+                showForm: false,
+                sheetIndex: 0
             }
         },
         mounted() {
             this.initData();
         },
         methods: {
+            copySuccess(e) {
+                this.$message({
+                    type: "success",
+                    message: "复制成功",
+                    duration: 1500,
+                    showClose: true,
+                });
+            },
+            copyError(e) {
+                this.$message({
+                    message: 'Copy error',
+                    type: 'error',
+                    duration: 1500
+                });
+            },
             doExport() {
-                if (this.textarea.trim() === ""){
-                    this.$message.error("群成员不能为空")
+                if (this.textarea.trim() === "") {
+                    this.$message.error("群成员不能为空");
+                    return false
                 }
                 const formdata = new FormData();
                 formdata.append("file", this.file);
                 formdata.append("textarea", this.textarea);
-                formdata.append("columnValue", this.columnValue);
-                formdata.append("exportColumnValue", this.exportColumnValue);
-                formdata.append("sheetIndex", this.radioValue);
+                formdata.append("columnValue", this.getColumnIndex(this.columnValue));
+                formdata.append("exportColumnValue", this.getColumnIndex(this.exportColumnValue));
+                formdata.append("sheetIndex", this.sheetIndex);
                 postRequest("/excel/inactive/user", formdata).then(res => {
-                    console.log(res);
-                    this.resultString = res.data
+                    // console.log(res);
+                    this.resultString = res.data.result;
+                    this.count = res.data.count;
                 })
             },
 
+            getColumnIndex(columnName) {
+                for (let i = 0; i < this.tableHeader.length; i++) {
+                    if (this.tableHeader[i] === columnName) {
+                        return i
+                    }
+                }
+            },
+            getActiveName(sheetList) {
+                // 默认选择第一项
+                return sheetList[0].sheet_index.toString();
+            },
+            handleClick(tab, event) {
+                this.changeValue(tab.name)
+            },
             changeValue(value) {
+                this.sheetIndex = value;
                 const formdata = new FormData();
                 formdata.append("file", this.file);
                 let params = {
@@ -187,13 +240,13 @@
                 this.importDataBtnIcon = 'el-icon-upload2';
                 this.importDataDisabled = false;
                 console.log(response);
-                // this.tableHeader = response.data.sheet.table_header
-                // this.tableData = response.data.sheet.table_data
-                // this.sheetNameList = response.data.sheet_name_list
+                this.tableHeader = response.data.sheet.table_header;
+                this.tableData = response.data.sheet.table_data;
+                this.sheetNameList = response.data.sheet_name_list;
                 this.sheetList = response.data.sheet_list;
                 this.file = file.raw;
-                this.loading = false
-
+                this.loading = false;
+                this.showForm = true;
             },
             beforeUpload() {
                 this.importDataBtnText = '正在导入';

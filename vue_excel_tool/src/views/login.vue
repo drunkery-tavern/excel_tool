@@ -23,7 +23,7 @@
             return {
                 loginForm: {
                     username: 'admin',
-                    password: '123'
+                    password: 'admin123456'
                 },
 
                 checked: true,

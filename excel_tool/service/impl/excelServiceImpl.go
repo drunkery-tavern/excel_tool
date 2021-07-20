@@ -14,7 +14,7 @@ type ExcelServiceImpl struct {
 	wg sync.WaitGroup
 }
 
-func (e *ExcelServiceImpl) GetInactiveUser(file *multipart.FileHeader, textarea string, columnIndex, exportColumnIndex, sheetIndex int) (string, error) {
+func (e *ExcelServiceImpl) GetInactiveUser(file *multipart.FileHeader, textarea string, columnIndex, exportColumnIndex, sheetIndex int) (*models.ResponseData, error) {
 	f, err := excelize.OpenFile(file.Filename)
 	if err != nil {
 		logging.Logger.Error(err)
@@ -36,15 +36,18 @@ func (e *ExcelServiceImpl) GetInactiveUser(file *multipart.FileHeader, textarea 
 	logging.Logger.Debug(groupUsers)
 	inactiveUsers = common.Intersect(inactiveUsers, groupUsers)
 	logging.Logger.Debug(inactiveUsers)
+	count := len(inactiveUsers)
 	var builder strings.Builder
 	for _, username := range inactiveUsers {
 		builder.WriteString("@")
 		builder.WriteString(username)
 		builder.WriteString(" ")
-
 	}
 	logging.Logger.Debug(builder.String())
-	return builder.String(), nil
+	return &models.ResponseData{
+		Result: builder.String(),
+		Count:  count,
+	}, nil
 }
 
 func (e *ExcelServiceImpl) GetExcelData(file *multipart.FileHeader, index int) (*models.ResponseData, error) {
@@ -100,6 +103,13 @@ func (e *ExcelServiceImpl) ParseExcel(file *multipart.FileHeader) (*models.Respo
 	}
 	// 获取 Sheet1 上所有单元格
 	sheetList := f.GetSheetList()
+	var sheetSlice []*models.SheetList
+	for _, s := range sheetList {
+		sheetSlice = append(sheetSlice, &models.SheetList{
+			SheetIndex: f.GetSheetIndex(s),
+			SheetName:  s,
+		})
+	}
 	rows, err := f.GetRows(sheetList[0])
 	if err != nil {
 		return nil, err
@@ -118,6 +128,8 @@ func (e *ExcelServiceImpl) ParseExcel(file *multipart.FileHeader) (*models.Respo
 			TableHeader: tableHeader,
 			TableData:   tableData,
 		},
+		SheetList: sheetSlice,
+		Count:     0,
 	}, nil
 }
 
