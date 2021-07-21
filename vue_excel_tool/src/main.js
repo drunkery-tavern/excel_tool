@@ -4,7 +4,6 @@ import router from './router'
 import VueClipboard from 'vue-clipboard2'
 import uploader from 'vue-simple-uploader'
 
-
 import {UTable, UTableColumn,} from 'umy-ui';
 
 import {

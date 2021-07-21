@@ -238,7 +238,7 @@
             },
             // 上传成功
             async onFileSuccess(rootFile, file) {
-                const response = await getRequest("excel/simple/merge", {
+                const response = await getRequest("/excel/simple/merge", {
                     md5: file.uniqueIdentifier,
                     fileName: file.name
                 });
