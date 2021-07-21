@@ -1,28 +1,26 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-
-// import 'element-ui/lib/theme-chalk/index.css';
 import VueClipboard from 'vue-clipboard2'
+import uploader from 'vue-simple-uploader'
 
-import {
-  UTableColumn,
-  UTable,
-} from 'umy-ui';
+
+import {UTable, UTableColumn,} from 'umy-ui';
 
 import {
   Button,
-  Input,
   Card,
-  Icon,
-  Select,
   Form,
+  FormItem,
+  Icon,
+  Input,
   Loading,
   Message,
-  Tabs,
+  Option,
+  Select,
   TabPane,
-  FormItem,
-  Upload,
+  Tabs,
+  Upload
 } from 'element-ui';
 
 Vue.use(UTableColumn);
@@ -39,12 +37,15 @@ Vue.use(Tabs);
 Vue.use(TabPane);
 Vue.use(FormItem);
 Vue.use(Upload);
+Vue.use(Option);
 
 
 Vue.prototype.$message = Message;
 VueClipboard.config.autoSetContainer = true; // add this line
 Vue.use(VueClipboard);
 Vue.config.productionTip = false;
+
+Vue.use(uploader);
 
 new Vue({
   router,

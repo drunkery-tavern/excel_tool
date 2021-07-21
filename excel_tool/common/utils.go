@@ -9,6 +9,7 @@ import (
 	"excel_tool/logging"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
+	"os"
 	"reflect"
 	"runtime"
 	"strings"
@@ -161,7 +162,7 @@ func Serialization(obj interface{}) string {
 	return string(data)
 }
 
-//求交集
+// Intersect 求交集
 func Intersect(slice1, slice2 []string) []string {
 	m := make(map[string]int)
 	nn := make([]string, 0)
@@ -176,4 +177,32 @@ func Intersect(slice1, slice2 []string) []string {
 		}
 	}
 	return nn
+}
+
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+func CreateDir(dirs ...string) (err error) {
+	for _, v := range dirs {
+		exist, err := PathExists(v)
+		if err != nil {
+			return err
+		}
+		if !exist {
+			logging.Logger.Debug("create directory" + v)
+			if err := os.MkdirAll(v, os.ModePerm); err != nil {
+				logging.Logger.Error("create directory"+v, " error:", err)
+				return err
+			}
+		}
+	}
+	return err
 }

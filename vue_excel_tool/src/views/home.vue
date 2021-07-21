@@ -4,7 +4,7 @@
             <div>
                 <div style="display: flex;justify-content: space-between">
                     <div>
-                        <el-upload
+                        <!--<el-upload
                                 :show-file-list="true"
                                 :before-upload="beforeUpload"
                                 :on-success="onSuccess"
@@ -16,7 +16,20 @@
                             <el-button :disabled="importDataDisabled" type="success" :icon="importDataBtnIcon">
                                 {{importDataBtnText}}
                             </el-button>
-                        </el-upload>
+                        </el-upload>-->
+                        <uploader
+                                :options="options"
+                                :file-status-text="statusText"
+                                :auto-start="false"
+                                class="uploader-example"
+                                @file-added="fileAdded"
+                                @file-progress="onFileProgress"
+                                @file-success="onFileSuccess"
+                                @file-error="onFileError"
+                        >
+                            <uploader-btn>导入文件</uploader-btn>
+                            <uploader-list/>
+                        </uploader>
                     </div>
                     <div v-show="false">
                         <el-button type="success" @click="exportData" icon="el-icon-download">
@@ -44,7 +57,7 @@
                          :value="getActiveName(sheetList)"
                          @tab-click="handleClick"
                          v-show="showForm">
-                    <el-tab-pane style="width: 100%;height: 400px"
+                    <el-tab-pane style="width: 100%;height: 300px"
                                  :key="item.sheet_index"
                                  v-for="(item,idx) in sheetList"
                                  :name="item.sheet_index.toString()"
@@ -135,15 +148,18 @@
 </template>
 
 <script>
-    import {postRequest} from "../utils/api";
+    import {getRequest, postRequest} from "../utils/api";
+    import SparkMD5 from 'spark-md5'
 
     export default {
         name: "Home",
         data() {
             return {
+                isUploaded: false,
+                md5: '',
                 resultString: "",
                 textarea: "",
-                height: 400,
+                height: 300,
                 rowHeight: 55,
                 columnValue: "用户状态",
                 exportColumnValue: "微信昵称",
@@ -155,6 +171,7 @@
                 tableHeader: [],
                 tableData: [],
                 sheetNameList: [],
+                notUploadedChunks: [],
                 sheetList: [{
                     sheet_index: 0,
                     sheet_name: ""
@@ -164,10 +181,83 @@
                 sheetIndex: 0
             }
         },
-        mounted() {
-            this.initData();
-        },
         methods: {
+            // 上传单个文件
+            fileAdded(file) {
+                this.computeMD5(file) // 生成MD5
+            },
+            // 计算MD5值
+            computeMD5(file) {
+                const that = this;
+                this.isUploaded = false; // 这个文件是否已经上传成功过
+                this.notUploadedChunks = []; // 未成功的chunkNumber
+                const fileReader = new FileReader();
+                let md5 = '';
+                file.pause();
+                fileReader.readAsArrayBuffer(file.file);
+                fileReader.onload = async function (e) {
+                    if (file.size !== e.target.result.byteLength) {
+                        this.$message.error(
+                            'Browser reported success but could not read the file until the end.'
+                        );
+                        return false
+                    }
+                    md5 = SparkMD5.ArrayBuffer.hash(e.target.result, false);
+                    file.uniqueIdentifier = md5;
+                    if (md5 !== '') {
+                        const res = await getRequest("/excel/simple/check", {md5: md5});
+                        console.log(res);
+                        if (res.code === 0) {
+                            if (res.data.isDone) {
+                                // 上传成功过
+                                this.isUploaded = true;
+                                that.$message({
+                                    message: '该文件已经上传成功过了，秒传成功。',
+                                    type: 'success'
+                                });
+                                file.cancel()
+                            } else {
+                                this.isUploaded = false;
+                                this.notUploadedChunks = res.data.chunks;
+                                if (this.notUploadedChunks.length) {
+                                    file.resume()
+                                }
+                            }
+                        }
+                    }
+                };
+                fileReader.onerror = function () {
+                    this.$.message.error(
+                        'generator md5 时FileReader异步读取文件出错了，FileReader onerror was triggered, maybe the browser aborted due to high memory usage.'
+                    );
+                    return false
+                }
+            },
+            // 上传进度
+            onFileProgress() {
+            },
+            // 上传成功
+            async onFileSuccess(rootFile, file) {
+                const response = await getRequest("excel/simple/merge", {
+                    md5: file.uniqueIdentifier,
+                    fileName: file.name
+                });
+                console.log(response);
+                this.tableHeader = response.data.sheet.table_header;
+                this.tableData = response.data.sheet.table_data;
+                this.sheetNameList = response.data.sheet_name_list;
+                this.sheetList = response.data.sheet_list;
+                this.file = file.file;
+                this.loading = false;
+                this.showForm = true;
+            },
+            onFileError(rootFile, file, response) {
+                this.$message({
+                    message: response,
+                    type: 'error'
+                })
+            },
+
             copySuccess(e) {
                 this.$message({
                     type: "success",
@@ -183,7 +273,7 @@
                     duration: 1500
                 });
             },
-            doExport() {
+            async doExport() {
                 if (this.textarea.trim() === "") {
                     this.$message.error("群成员不能为空");
                     return false
@@ -194,11 +284,16 @@
                 formdata.append("columnValue", this.getColumnIndex(this.columnValue));
                 formdata.append("exportColumnValue", this.getColumnIndex(this.exportColumnValue));
                 formdata.append("sheetIndex", this.sheetIndex);
-                postRequest("/excel/inactive/user", formdata).then(res => {
-                    // console.log(res);
-                    this.resultString = res.data.result;
-                    this.count = res.data.count;
-                })
+                const res = await postRequest("/excel/inactive/user", formdata);
+                if (res.code === 1000) {
+                    if (res.data.result.trim().length === 0) {
+                        this.$message.success("该群全部成员都已激活！")
+                    } else {
+                        this.$message.success("@文本生成成功");
+                        this.resultString = res.data.result;
+                        this.count = res.data.count;
+                    }
+                }
             },
 
             getColumnIndex(columnName) {
@@ -207,14 +302,17 @@
                         return i
                     }
                 }
-            },
+            }
+            ,
             getActiveName(sheetList) {
                 // 默认选择第一项
                 return sheetList[0].sheet_index.toString();
-            },
+            }
+            ,
             handleClick(tab, event) {
                 this.changeValue(tab.name)
-            },
+            }
+            ,
             changeValue(value) {
                 this.sheetIndex = value;
                 const formdata = new FormData();
@@ -256,20 +354,64 @@
             exportData() {
                 window.open('/employee/basic/export', '_parent');
             },
-
-            initData() {
-
-            },
         },
 
         computed: {
-            //计算属性
-
+            statusText() {
+                return {
+                    success: '成功',
+                    error: '错误',
+                    uploading: '上传中',
+                    paused: '暂停中',
+                    waiting: '等待中'
+                }
+            }
+            ,
+            options() {
+                return {
+                    target: '/excel/simple/upload',
+                    testChunks: false,
+                    simultaneousUploads: 5,
+                    chunkSize: 2 * 1024 * 1024,
+                    checkChunkUploadedByResponse(chunk) {
+                        if (this.isUploaded) {
+                            return true // return true 会忽略当前文件，不会再发送给后台
+                        } else {
+                            // 根据已经上传过的切片来进行忽略
+                            return (
+                                this.notUploadedChunks &&
+                                this.notUploadedChunks.some(
+                                    item => item.chunkNumber === chunk.offset + 1
+                                )
+                            )
+                        }
+                    }
+                }
+            }
         },
     }
 </script>
 
 <style>
+    .uploader-example {
+        width: 880px;
+        padding: 15px;
+        margin: 15px 15px 20px;
+        font-size: 12px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .uploader-example .uploader-btn {
+        margin-right: 4px;
+    }
+
+    .uploader-example .uploader-list {
+        margin-top: 15px;
+        max-height: 440px;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+
     /* 可以设置不同的进入和离开动画 */
     /* 设置持续时间和动画函数 */
     .slide-fade-enter-active {

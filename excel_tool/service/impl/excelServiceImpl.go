@@ -1,17 +1,86 @@
 package impl
 
 import (
+	"errors"
 	"excel_tool/common"
+	"excel_tool/dao"
 	"excel_tool/logging"
 	"excel_tool/models"
+	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
+	"gorm.io/gorm"
+	"io/ioutil"
 	"mime/multipart"
+	"os"
+	"strconv"
 	"strings"
 	"sync"
 )
 
 type ExcelServiceImpl struct {
 	wg sync.WaitGroup
+}
+
+func (e *ExcelServiceImpl) MergeFileMd5(md5 string, fileName string) error {
+	finishDir := "./finish/"
+	dir := "./chunk/" + md5
+	// 如果文件上传成功 不做后续操作 通知成功即可
+	if !errors.Is(dao.Db.First(&models.SimpleUploader{}, "identifier = ? AND is_done = ?", md5, true).Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	// 打开切片文件夹
+	rd, err := ioutil.ReadDir(dir)
+	_ = os.MkdirAll(finishDir, os.ModePerm)
+	// 创建目标文件
+	fd, err := os.OpenFile(finishDir+fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+	// 关闭文件
+	defer fd.Close()
+	// 将切片文件按照顺序写入
+	for k := range rd {
+		content, _ := ioutil.ReadFile(dir + "/" + fileName + strconv.Itoa(k+1))
+		_, err = fd.Write(content)
+		if err != nil {
+			_ = os.Remove(finishDir + fileName)
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+	err = dao.SqlTransaction(dao.Db.Begin(), func(tx *gorm.DB) error {
+		// 删除切片信息
+		if err = tx.Delete(&models.SimpleUploader{}, "identifier = ? AND is_done = ?", md5, false).Error; err != nil {
+			fmt.Println(err)
+			return err
+		}
+		data := models.SimpleUploader{
+			Identifier: md5,
+			IsDone:     true,
+			FilePath:   finishDir + fileName,
+			Filename:   fileName,
+		}
+		// 添加文件信息
+		if err = tx.Create(&data).Error; err != nil {
+			fmt.Println(err)
+			return err
+		}
+		return nil
+	})
+	err = os.RemoveAll(dir) // 清除切片
+	return err
+}
+
+func (e *ExcelServiceImpl) CheckFileMd5(md5 string) (err error, uploads []models.SimpleUploader, isDone bool) {
+	err = dao.Db.Find(&uploads, "identifier = ? AND is_done = ?", md5, false).Error
+	isDone = errors.Is(dao.Db.First(&models.SimpleUploader{}, "identifier = ? AND is_done = ?", md5, true).Error, gorm.ErrRecordNotFound)
+	return err, uploads, !isDone
+}
+
+func (e *ExcelServiceImpl) SaveChunk(chunk models.SimpleUploader) error {
+	return dao.Db.Create(chunk).Error
 }
 
 func (e *ExcelServiceImpl) GetInactiveUser(file *multipart.FileHeader, textarea string, columnIndex, exportColumnIndex, sheetIndex int) (*models.ResponseData, error) {
@@ -96,8 +165,8 @@ func (e *ExcelServiceImpl) GetSheetList(file *multipart.FileHeader) (*models.Res
 	}, nil
 }
 
-func (e *ExcelServiceImpl) ParseExcel(file *multipart.FileHeader) (*models.ResponseData, error) {
-	f, err := excelize.OpenFile(file.Filename)
+func (e *ExcelServiceImpl) ParseExcel(filename string) (*models.ResponseData, error) {
+	f, err := excelize.OpenFile("./finish/" + filename)
 	if err != nil {
 		return nil, err
 	}

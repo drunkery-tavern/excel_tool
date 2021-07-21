@@ -14,6 +14,8 @@ const (
 	InvalidRequestParams ErrorCode = iota + 20001
 	GetTableDataFail
 	GetInactiveUserFail
+	SliceCreationFailed
+	ReadMd5Failed
 )
 
 const (
@@ -25,6 +27,8 @@ var Error = map[ErrorCode]error{
 	InvalidRequestParams: errors.New("参数非法"),
 	GetTableDataFail:     errors.New("获取表格数据失败"),
 	GetInactiveUserFail:  errors.New("数据匹配失败"),
+	SliceCreationFailed:  errors.New("创建切片失败"),
+	ReadMd5Failed:        errors.New("读取Md5失败"),
 }
 
 func GetMsg(code ErrorCode) string {

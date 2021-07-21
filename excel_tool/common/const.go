@@ -16,6 +16,9 @@ const (
 	UploadExcel     = "/import"
 	GetExcelData    = "/table"
 	GetInactiveUser = "/inactive/user"
+	Upload          = "/simple/upload"
+	Check           = "/simple/check"
+	Merge           = "/simple/merge"
 )
 
 const (

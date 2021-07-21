@@ -16,6 +16,10 @@ func excelRouters(r *gin.Engine) {
 		excel.POST(common.UploadExcel, ExcelApi.UploadExcel)
 		excel.POST(common.GetExcelData, ExcelApi.GetExcelData)
 		excel.POST(common.GetInactiveUser, ExcelApi.GetInactiveUser)
+
+		excel.POST(common.Upload, ExcelApi.SimpleUploaderUpload)
+		excel.GET(common.Check, ExcelApi.CheckFileMd5)
+		excel.GET(common.Merge, ExcelApi.MergeFileMd5)
 	}
 
 }

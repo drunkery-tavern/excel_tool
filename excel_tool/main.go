@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"excel_tool/config"
+	"excel_tool/dao"
 	"excel_tool/logging"
 	"excel_tool/routers"
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,7 @@ import (
 func main() {
 	gin.ForceConsoleColor()                            // 启用gin的日志输出带颜色
 	gin.DefaultWriter = colorable.NewColorableStdout() // 替换默认Writer（关键步骤）
+	dao.InitMysql()
 	var router *gin.Engine
 	router = routers.InitWebRouter()
 	srv := &http.Server{
