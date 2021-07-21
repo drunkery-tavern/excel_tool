@@ -1,21 +1,57 @@
+// gzip压缩
+const CompressionPlugin = require('compression-webpack-plugin');
+const isProduction = process.env.NODE_ENV !== 'development';
+
+
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const Timestamp = new Date().getTime();
+const name = "vue_excel_tool";
 let proxyObj = {};
-proxyObj['/ws'] = {
-    ws: true,
-    target: "ws://localhost:8090"
-};
+
+// proxyObj['/ws'] = {
+//     ws: true,
+//     target: "ws://localhost:8090"
+// };
 proxyObj['/'] = {
     ws: false,
-    target: 'http://localhost:8090',
+    target: 'http://localhost:8090/',
     changeOrigin: true,
     pathRewrite: {
         '^/': ''
     }
 };
 module.exports = {
+    publicPath: process.env.NODE_ENV === 'production' ? './' : '/', // 构建好的文件输出到哪里
+    runtimeCompiler: false,
+    productionSourceMap: false,
     devServer: {
         host: 'localhost',
+        stats: 'errors-only', // 打包日志输出输出错误信息
         port: 8081,
         proxy: proxyObj,
-        disableHostCheck: true,
-    }
+        disableHostCheck: false,
+    },
+    configureWebpack: {
+        name: name,
+        // 修改打包后的js文件名称
+        output: {
+            // 输出重构  打包编译后的 文件名称  【模块名称.版本号.时间戳】
+            filename: `js/[name].[chunkhash].${Timestamp}.js`,
+            chunkFilename: `js/[name].[chunkhash].${Timestamp}.js`
+        },
+        // 修改打包后的css文件名称
+        plugins: [
+            new MiniCssExtractPlugin({
+                filename: `css/[name].[contenthash].${Timestamp}.css`,
+            }),
+            new CompressionPlugin({
+                algorithm: 'gzip', // 使用gzip压缩
+                test: /\.js$|\.html$|\.css$/, // 匹配文件名
+                filename: '[path].gz[query]', // 压缩后的文件名(保持原文件名，后缀加.gz)
+                minRatio: 1, // 压缩率小于1才会压缩
+                threshold: 10240, // 对超过10k的数据压缩
+                deleteOriginalAssets: false, // 是否删除未压缩的源文件，谨慎设置，如果希望提供非gzip的资源，可不设置或者设置为false（比如删除打包后的gz后还可以加载到原始资源文件）
+            }),
+        ],
+    },
 };

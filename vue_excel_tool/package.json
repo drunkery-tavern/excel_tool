@@ -8,8 +8,10 @@
     "proto": "pbjs -t json-module -w commonjs -o src/proto/proto.js  src/proto/*.proto"
   },
   "dependencies": {
+    "compression-webpack-plugin": "^5.0.1",
     "core-js": "^3.6.4",
     "element-ui": "^2.13.1",
+    "mini-css-extract-plugin": "latest",
     "protobufjs": "^6.11.2",
     "spark-md5": "^3.0.1",
     "umy-ui": "^1.1.6",

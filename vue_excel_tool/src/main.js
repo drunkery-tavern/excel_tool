@@ -19,7 +19,8 @@ import {
   Select,
   TabPane,
   Tabs,
-  Upload
+  Upload,
+  Checkbox
 } from 'element-ui';
 
 Vue.use(UTableColumn);
@@ -37,6 +38,7 @@ Vue.use(TabPane);
 Vue.use(FormItem);
 Vue.use(Upload);
 Vue.use(Option);
+Vue.use(Checkbox);
 
 
 Vue.prototype.$message = Message;
