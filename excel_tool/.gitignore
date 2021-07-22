@@ -42,4 +42,4 @@ cmake-build-debug/
 /tests/config.json
 /dist/
 /prof/*
-/config/app.yaml
+/config/
