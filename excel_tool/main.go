@@ -22,9 +22,8 @@ func main() {
 	var router *gin.Engine
 	router = routers.InitWebRouter()
 	srv := &http.Server{
-		Addr:           ":" + strconv.Itoa(int(config.GetConf().HttpPort)),
-		Handler:        router,
-		MaxHeaderBytes: 1 << 20,
+		Addr:    ":" + strconv.Itoa(int(config.GetConf().HttpPort)),
+		Handler: router,
 	}
 
 	go func() {

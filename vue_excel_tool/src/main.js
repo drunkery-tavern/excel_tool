@@ -3,25 +3,41 @@ import App from './App.vue'
 import router from './router'
 import VueClipboard from 'vue-clipboard2'
 import uploader from 'vue-simple-uploader'
+import store from "./store";
+import NProgress from "nprogress";
 
 import {UTable, UTableColumn,} from 'umy-ui';
 
 import {
+  Aside,
+  Avatar,
+  Breadcrumb,
+  BreadcrumbItem,
   Button,
   Card,
+  Checkbox,
+  Container,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
   Form,
   FormItem,
+  Header,
   Icon,
   Input,
   Loading,
+  Main,
+  Menu,
+  MenuItem,
   Message,
   Option,
+  Scrollbar,
   Select,
   TabPane,
   Tabs,
   Upload,
-  Checkbox
 } from 'element-ui';
+import {generaMenu} from "./utils/menu";
 
 Vue.use(UTableColumn);
 Vue.use(UTable);
@@ -39,6 +55,19 @@ Vue.use(FormItem);
 Vue.use(Upload);
 Vue.use(Option);
 Vue.use(Checkbox);
+Vue.use(Container);
+Vue.use(Aside);
+Vue.use(DropdownItem);
+Vue.use(DropdownMenu);
+Vue.use(Breadcrumb);
+Vue.use(BreadcrumbItem);
+Vue.use(Dropdown);
+Vue.use(Menu);
+Vue.use(MenuItem);
+Vue.use(Header);
+Vue.use(Avatar);
+Vue.use(Main);
+Vue.use(Scrollbar);
 
 
 Vue.prototype.$message = Message;
@@ -48,7 +77,39 @@ Vue.config.productionTip = false;
 
 Vue.use(uploader);
 
+
+NProgress.configure({
+  easing: "ease", // 动画方式
+  speed: 500, // 递增进度条的速度
+  showSpinner: false, // 是否显示加载ico
+  trickleSpeed: 200, // 自动递增间隔
+  minimum: 0.3 // 初始化时的最小百分比
+});
+
+//路由守卫
+router.beforeEach((to, from, next) => {
+  NProgress.start();
+  if (to.path === "/login") {
+    next();
+  } else if (!store.state.username) {
+    next({path: "/login"});
+  } else {
+    next();
+  }
+});
+
+router.afterEach(() => {
+  NProgress.done();
+});
+
 new Vue({
   router,
-  render: h => h(App)
+  store,
+  render: h => h(App),
+  created() {
+    // 刷新页面查询用户菜单
+    if (store.state.username != null) {
+      generaMenu();
+    }
+  }
 }).$mount('#app');

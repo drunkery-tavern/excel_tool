@@ -1,26 +1,33 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Login from '../views/login.vue'
-import Home from '../views/home.vue'
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
-  const routes = [
-  {
-    path: '/',
-    name: 'Login',
-    component: Login
-  },
+const routes = [
     {
-      path: '/home',
-      name: 'Home',
-      component: Home,
-    }
+        path: "/login",
+        name: "登录",
+        hidden: true,
+        component: () => import("../views/login.vue")
+    },
+];
 
-]
+const createRouter = () =>
+    new VueRouter({
+        mode: 'history',
+        routes: routes
+    });
 
-const router = new VueRouter({
-  routes
-})
+const router = createRouter();
+
+export function resetRouter() {
+  const newRouter = createRouter();
+  router.matcher = newRouter.matcher;
+}
+
+const originalPush = router.push;
+router.push = function push(location) {
+    return originalPush.call(this, location).catch(err => err)
+};
 
 export default router

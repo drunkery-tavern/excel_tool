@@ -83,8 +83,8 @@ func (e *ExcelServiceImpl) SaveChunk(chunk models.SimpleUploader) error {
 	return dao.Db.Create(chunk).Error
 }
 
-func (e *ExcelServiceImpl) GetInactiveUser(file *multipart.FileHeader, textarea string, columnIndex, exportColumnIndex, sheetIndex int) (*models.ResponseData, error) {
-	f, err := excelize.OpenFile(file.Filename)
+func (e *ExcelServiceImpl) GetInactiveUser(filename string, textarea string, columnIndex, exportColumnIndex, sheetIndex int) (*models.ResponseData, error) {
+	f, err := excelize.OpenFile("./finish/" + filename)
 	if err != nil {
 		logging.Logger.Error(err)
 	}
@@ -99,12 +99,12 @@ func (e *ExcelServiceImpl) GetInactiveUser(file *multipart.FileHeader, textarea 
 			inactiveUsers = append(inactiveUsers, row[exportColumnIndex])
 		}
 	}
-	logging.Logger.Debug(inactiveUsers)
+	//logging.Logger.Debug(inactiveUsers)
 	//解析群成员
 	groupUsers := strings.Split(textarea, ";")
-	logging.Logger.Debug(groupUsers)
+	//logging.Logger.Debug(groupUsers)
 	inactiveUsers = common.Intersect(inactiveUsers, groupUsers)
-	logging.Logger.Debug(inactiveUsers)
+	//logging.Logger.Debug(inactiveUsers)
 	count := len(inactiveUsers)
 	var builder strings.Builder
 	for _, username := range inactiveUsers {
@@ -112,7 +112,7 @@ func (e *ExcelServiceImpl) GetInactiveUser(file *multipart.FileHeader, textarea 
 		builder.WriteString(username)
 		builder.WriteString(" ")
 	}
-	logging.Logger.Debug(builder.String())
+	//logging.Logger.Debug(builder.String())
 	return &models.ResponseData{
 		Result: builder.String(),
 		Count:  count,
@@ -120,7 +120,7 @@ func (e *ExcelServiceImpl) GetInactiveUser(file *multipart.FileHeader, textarea 
 }
 
 func (e *ExcelServiceImpl) GetExcelData(file *multipart.FileHeader, index int) (*models.ResponseData, error) {
-	f, err := excelize.OpenFile(file.Filename)
+	f, err := excelize.OpenFile("./finish/" + file.Filename)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func (e *ExcelServiceImpl) GetExcelData(file *multipart.FileHeader, index int) (
 }
 
 func (e *ExcelServiceImpl) GetSheetList(file *multipart.FileHeader) (*models.ResponseData, error) {
-	f, err := excelize.OpenFile(file.Filename)
+	f, err := excelize.OpenFile("./finish/" + file.Filename)
 	if err != nil {
 		return nil, err
 	}
@@ -185,17 +185,17 @@ func (e *ExcelServiceImpl) ParseExcel(filename string) (*models.ResponseData, er
 	}
 	var tableHeader []string
 	tableHeader = append(tableHeader, rows[0]...)
-	var tableData [][]string
-	for _, row := range rows[1:] {
-		var rowSlice []string
-		rowSlice = append(rowSlice, row...)
-		tableData = append(tableData, rowSlice)
-	}
+	//var tableData [][]string
+	//for _, row := range rows[1:] {
+	//	var rowSlice []string
+	//	rowSlice = append(rowSlice, row...)
+	//	tableData = append(tableData, rowSlice)
+	//}
 	return &models.ResponseData{
 		SheetNameList: sheetList,
 		Sheet: &models.Sheet{
 			TableHeader: tableHeader,
-			TableData:   tableData,
+			//TableData:   tableData,
 		},
 		SheetList: sheetSlice,
 		Count:     0,

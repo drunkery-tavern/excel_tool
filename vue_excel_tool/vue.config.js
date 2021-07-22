@@ -1,17 +1,7 @@
 // gzip压缩
 const CompressionPlugin = require('compression-webpack-plugin');
-const isProduction = process.env.NODE_ENV !== 'development';
-
-
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const Timestamp = new Date().getTime();
-const name = "vue_excel_tool";
 let proxyObj = {};
 
-// proxyObj['/ws'] = {
-//     ws: true,
-//     target: "ws://localhost:8090"
-// };
 proxyObj['/'] = {
     ws: false,
     target: 'http://localhost:8090/',
@@ -32,18 +22,8 @@ module.exports = {
         disableHostCheck: false,
     },
     configureWebpack: {
-        name: name,
-        // 修改打包后的js文件名称
-        output: {
-            // 输出重构  打包编译后的 文件名称  【模块名称.版本号.时间戳】
-            filename: `js/[name].[chunkhash].${Timestamp}.js`,
-            chunkFilename: `js/[name].[chunkhash].${Timestamp}.js`
-        },
         // 修改打包后的css文件名称
         plugins: [
-            new MiniCssExtractPlugin({
-                filename: `css/[name].[contenthash].${Timestamp}.css`,
-            }),
             new CompressionPlugin({
                 algorithm: 'gzip', // 使用gzip压缩
                 test: /\.js$|\.html$|\.css$/, // 匹配文件名

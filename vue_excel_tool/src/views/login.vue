@@ -17,6 +17,8 @@
 </template>
 
 <script>
+    import {generaMenu} from "../utils/menu";
+
     export default {
         name: "login",
         data() {
@@ -40,8 +42,10 @@
             submitLogin() {
                 this.$refs.loginForm.validate((valid) => {
                     if (valid) {
-                        let path = this.$route.query.redirect;
-                        this.$router.replace((path === '/' || path === undefined) ? '/home' : path);
+                        this.$store.commit("login", this.loginForm);
+                        generaMenu();
+                        this.$message.success("登录成功");
+                        this.$router.push({path:"/index"})
                     } else {
                         this.$message.error('请输入必输字段');
                         return false;

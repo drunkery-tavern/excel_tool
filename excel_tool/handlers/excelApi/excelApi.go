@@ -65,7 +65,7 @@ func (e *ExcelApi) GetExcelData(c *gin.Context) {
 }
 
 func (e *ExcelApi) GetInactiveUser(c *gin.Context) {
-	file, _ := c.FormFile("file")
+	filename := c.PostForm("filename")
 	textarea := c.PostForm("textarea")
 	columnValueString := c.PostForm("columnValue")
 	columnIndex, _ := strconv.Atoi(columnValueString)
@@ -73,7 +73,7 @@ func (e *ExcelApi) GetInactiveUser(c *gin.Context) {
 	exportColumnIndex, _ := strconv.Atoi(exportColumnValueString)
 	sheetIndexString := c.PostForm("sheetIndex")
 	sheetIndex, _ := strconv.Atoi(sheetIndexString)
-	data, err := ExcelService.GetInactiveUser(file, textarea, columnIndex, exportColumnIndex, sheetIndex)
+	data, err := ExcelService.GetInactiveUser(filename, textarea, columnIndex, exportColumnIndex, sheetIndex)
 	logging.Logger.Debug(data)
 	if err != nil {
 		e.RespFailWithDesc(c, http.StatusBadRequest, common.GetInactiveUserFail)
