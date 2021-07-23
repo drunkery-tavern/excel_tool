@@ -95,6 +95,9 @@ func (e *ExcelServiceImpl) GetInactiveUser(filename string, textarea string, col
 	logging.Logger.Debug(len(rows))
 	var inactiveUsers []string
 	for _, row := range rows[1:] {
+		if len(row) == 0 {
+			break
+		}
 		if row[columnIndex] == "未激活" {
 			inactiveUsers = append(inactiveUsers, row[exportColumnIndex])
 		}
