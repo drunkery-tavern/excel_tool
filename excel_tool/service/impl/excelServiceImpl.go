@@ -84,30 +84,37 @@ func (e *ExcelServiceImpl) SaveChunk(chunk models.SimpleUploader) error {
 }
 
 func (e *ExcelServiceImpl) GetInactiveUser(filename string, textarea string, columnIndex, exportColumnIndex, sheetIndex int) (*models.ResponseData, error) {
-	f, err := excelize.OpenFile("./finish/" + filename)
+	md5Encode := common.GetMD5Encode(filename)
+	logging.Logger.Debug(md5Encode)
+	inactiveUsers, err := common.GetRedisUtil().SMembers(common.FileDataKey + md5Encode)
 	if err != nil {
 		logging.Logger.Error(err)
 	}
-	rows, err := f.GetRows(f.GetSheetName(sheetIndex))
-	if err != nil {
-		logging.Logger.Error(err)
-	}
-	logging.Logger.Debug(len(rows))
-	var inactiveUsers []string
-	for _, row := range rows[1:] {
-		if len(row) == 0 {
-			break
+	if len(inactiveUsers) == 0 {
+		f, err := excelize.OpenFile("./finish/" + filename)
+		if err != nil {
+			logging.Logger.Error(err)
+			return nil, err
 		}
-		if row[columnIndex] == "未激活" {
-			inactiveUsers = append(inactiveUsers, row[exportColumnIndex])
+		rows, err := f.GetRows(f.GetSheetName(sheetIndex))
+		if err != nil {
+			logging.Logger.Error(err)
+			return nil, err
 		}
+		logging.Logger.Debug(len(rows))
+		for _, row := range rows[1:] {
+			if len(row) == 0 {
+				break
+			}
+			if row[columnIndex] == "未激活" {
+				inactiveUsers = append(inactiveUsers, row[exportColumnIndex])
+			}
+		}
+		common.GetRedisUtil().SAdd(common.FileDataKey+md5Encode, inactiveUsers)
 	}
-	//logging.Logger.Debug(inactiveUsers)
 	//解析群成员
 	groupUsers := strings.Split(textarea, ";")
-	//logging.Logger.Debug(groupUsers)
 	inactiveUsers = common.Intersect(inactiveUsers, groupUsers)
-	//logging.Logger.Debug(inactiveUsers)
 	count := len(inactiveUsers)
 	var builder strings.Builder
 	for _, username := range inactiveUsers {
@@ -115,7 +122,6 @@ func (e *ExcelServiceImpl) GetInactiveUser(filename string, textarea string, col
 		builder.WriteString(username)
 		builder.WriteString(" ")
 	}
-	//logging.Logger.Debug(builder.String())
 	return &models.ResponseData{
 		Result: builder.String(),
 		Count:  count,
@@ -171,6 +177,7 @@ func (e *ExcelServiceImpl) GetSheetList(file *multipart.FileHeader) (*models.Res
 func (e *ExcelServiceImpl) ParseExcel(filename string) (*models.ResponseData, error) {
 	f, err := excelize.OpenFile("./finish/" + filename)
 	if err != nil {
+		logging.Logger.Error(err)
 		return nil, err
 	}
 	// 获取 Sheet1 上所有单元格

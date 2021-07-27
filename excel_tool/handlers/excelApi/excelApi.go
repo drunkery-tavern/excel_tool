@@ -147,7 +147,7 @@ func (e *ExcelApi) MergeFileMd5(c *gin.Context) {
 	//})
 	data, err := ExcelService.ParseExcel(fileName)
 	if err != nil {
-		logging.Logger.Debug("err:", err)
+		logging.Logger.Error("err:", err)
 		e.RespFailWithDesc(c, http.StatusBadRequest, common.InvalidRequestParams)
 		return
 	}

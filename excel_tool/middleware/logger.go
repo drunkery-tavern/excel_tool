@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"excel_tool/helper"
-	"excel_tool/logging"
 	"bytes"
 	"encoding/json"
+	"excel_tool/helper"
+	"excel_tool/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"io/ioutil"
@@ -42,7 +42,7 @@ func LoggerMiddleware() gin.HandlerFunc {
 			data, _ := ioutil.ReadAll(c.Request.Body)
 			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
 			_ = helper.HideSensitiveInfo(&data, c.Request.URL.Path) // 隐藏敏感信息
-			maxLen := int(math.Min(float64(len(data)), float64(2048)))
+			maxLen := int(math.Min(float64(len(data)), float64(1024)))
 			reqData = string(data)[:maxLen]
 		} else if method == "GET" {
 			params := c.Request.URL.Query()

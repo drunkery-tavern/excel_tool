@@ -15,9 +15,9 @@ type Config struct {
 	HttpPort  uint32 `yaml:"httpport"`
 	RunMode   string `yaml:"runmode"`
 	SessionOn string `yaml:"sessionon"`
-	Mysql Mysql `yaml:"mysql"`
-	Redis Redis `yaml:"redis"`
-	Ws    WS    `yaml:"ws"`
+	Mysql     Mysql  `yaml:"mysql"`
+	Redis     Redis  `yaml:"redis"`
+	Ws        WS     `yaml:"ws"`
 }
 
 type Mysql struct {

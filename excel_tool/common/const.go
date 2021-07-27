@@ -3,7 +3,9 @@ package common
 const ()
 
 //RedisPrefixConst
-const ()
+const (
+	FileDataKey = "file_data_"
+)
 
 //code status
 const (
