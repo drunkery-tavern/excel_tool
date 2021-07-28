@@ -36,7 +36,7 @@ import {
   TabPane,
   Tabs,
   Upload,
-  Carousel, CarouselItem, Image, Row, Col, Tag, Steps, Step, Progress
+  Carousel, CarouselItem, Image, Row, Col, Tag, Steps, Step, Progress, Empty
 } from 'element-ui';
 import {generaMenu} from "./utils/menu";
 
@@ -78,6 +78,7 @@ Vue.use(Tag);
 Vue.use(Steps);
 Vue.use(Step);
 Vue.use(Progress);
+Vue.use(Empty);
 
 
 Vue.prototype.$message = Message;

@@ -30,32 +30,32 @@
             </el-row>
         </el-card>
             <el-row>
-                <el-col span="8">
+                <el-col :span="8">
                     <el-card style="margin-top: 15px;height: 300px">
                         <div style="width: 500px;height: 230px;display: grid;margin-top: 15px;margin-left: 15px">
                             <span style="font-weight: bold;font-size: 20px;text-align: center">技术栈</span>
                             <div style="padding-top:5px;" class="progress-item">
                                 <span>Vue</span>
-                                <el-progress :text-inside="true" stroke-width="18" :percentage="65"/>
+                                <el-progress :text-inside="true" :stroke-width="18" :percentage="65"/>
                             </div>
                             <div class="progress-item">
                                 <span>JavaScript</span>
-                                <el-progress :text-inside="true" stroke-width="18" :percentage="25" status="exception"/>
+                                <el-progress :text-inside="true" :stroke-width="18" :percentage="25" status="exception"/>
                             </div>
                             <div class="progress-item">
                                 <span>Go</span>
-                                <el-progress :text-inside="true" stroke-width="18" :percentage="90" status="success"/>
+                                <el-progress :text-inside="true" :stroke-width="18" :percentage="90" status="success"/>
                             </div>
                             <div class="progress-item">
                                 <span>Redis</span>
-                                <el-progress :text-inside="true" stroke-width="18" :percentage="10" status="warning"/>
+                                <el-progress :text-inside="true" :stroke-width="18" :percentage="10" status="warning"/>
                             </div>
                         </div>
                     </el-card>
                 </el-col>
-                <el-col span="16">
+                <el-col :span="16">
                     <el-card style="margin-top: 15px;margin-left: 15px;height: 300px">
-
+                        <el-empty description="虚位以待"></el-empty>
                     </el-card>
                 </el-col>
             </el-row>
