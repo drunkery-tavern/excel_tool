@@ -20,7 +20,7 @@
                         <div style="height: 120px;">
                             <el-steps direction="vertical">
                                 <el-step icon="el-icon-s-finance" status="finish" title="匹配用户"
-                                         description="用于一键匹配企业微信群中未激活课程的用户，该工具需配合KeyboardMan一起使用"></el-step>
+                                         description="文件采用分片上传的方式，可一键匹配企业微信群中未激活课程的用户，该工具需配合KeyboardMan一起使用"></el-step>
                                 <el-step icon="el-icon-s-order" status="wait" title="表格合并"
                                          description="敬请期待..."></el-step>
                             </el-steps>
@@ -29,33 +29,36 @@
                 </el-col>
             </el-row>
         </el-card>
-        <el-card style="margin-top: 20px">
             <el-row>
                 <el-col span="8">
-                    <div style="width: 500px;height: 230px;display: grid;margin-top: 15px;margin-left: 15px">
-                        <span style="font-weight: bold;font-size: 20px;text-align: center">技术栈</span>
-                        <div style="padding-top:10px;" class="progress-item">
-                            <span>Vue</span>
-                            <el-progress stroke-width="18" :percentage="60"/>
+                    <el-card style="margin-top: 15px;height: 300px">
+                        <div style="width: 500px;height: 230px;display: grid;margin-top: 15px;margin-left: 15px">
+                            <span style="font-weight: bold;font-size: 20px;text-align: center">技术栈</span>
+                            <div style="padding-top:5px;" class="progress-item">
+                                <span>Vue</span>
+                                <el-progress :text-inside="true" stroke-width="18" :percentage="65"/>
+                            </div>
+                            <div class="progress-item">
+                                <span>JavaScript</span>
+                                <el-progress :text-inside="true" stroke-width="18" :percentage="25" status="exception"/>
+                            </div>
+                            <div class="progress-item">
+                                <span>Go</span>
+                                <el-progress :text-inside="true" stroke-width="18" :percentage="90" status="success"/>
+                            </div>
+                            <div class="progress-item">
+                                <span>Redis</span>
+                                <el-progress :text-inside="true" stroke-width="18" :percentage="10" status="warning"/>
+                            </div>
                         </div>
-                        <div class="progress-item">
-                            <span>JavaScript</span>
-                            <el-progress stroke-width="18" :percentage="30"/>
-                        </div>
-                        <div class="progress-item">
-                            <span>Go</span>
-                            <el-progress stroke-width="18" :percentage="100" status="success"/>
-                        </div>
-                        <div class="progress-item">
-                            <span>Sql</span>
-                            <el-progress stroke-width="18" :percentage="10"/>
-                        </div>
-                    </div>
+                    </el-card>
                 </el-col>
                 <el-col span="16">
+                    <el-card style="margin-top: 15px;margin-left: 15px;height: 300px">
+
+                    </el-card>
                 </el-col>
             </el-row>
-        </el-card>
     </div>
 </template>
 
