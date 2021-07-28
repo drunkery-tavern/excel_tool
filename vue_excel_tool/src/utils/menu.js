@@ -1,44 +1,48 @@
 import router from "../router";
 import store from "../store";
+import Layout from "../layout/index.vue";
+import home from "../views/home.vue";
+import matchInactive from "../views/matchInactive.vue";
+import matchExcel from "../views/matchExcel.vue";
 
 export function generaMenu() {
   let userMenuList = [
     {
       children: [
         {
-          component: () => import("../views/home.vue"),
+          component: home,
           icon: "el-icon-s-home",
           name: "首页",
-          path: "/index"
+          path: '/index'
         }
       ],
-      component: () => import("../layout/index.vue"),
-      path: "/index"
+      component: Layout,
+      path: '/index'
     },
     {
       children: [
         {
-          component: () => import("../views/matchInactive.vue"),
+          component: matchInactive,
           icon: "el-icon-s-finance",
-          name: "@文本生成",
-          path: "/match-inactive"
+          name: "匹配用户",
+          path: '/match-inactive'
         }
       ],
-      component: () => import("../layout/index.vue"),
-      path: "/match-inactive"
+      component: Layout,
+      path: '/match-inactive'
     },
 
     {
       children: [
         {
-          component: () => import("../views/matchExcel.vue"),
+          component: matchExcel,
           icon: "el-icon-s-order",
-          name: "excel匹配合并",
-          path: "/match-excel"
+          name: "表格合并",
+          path: '/match-excel'
         }
       ],
-      component: () => import("../layout/index.vue"),
-      path: "/match-excel"
+      component: Layout,
+      path: '/match-excel'
     },
 
   ];
@@ -51,8 +55,8 @@ export function generaMenu() {
   });
 }
 
-// function loadView(view) {
-//   // 路由懒加载
-//   return (resolve) => require([`@/views${view}`], resolve);
-//   // return () => import(`@/views${view}`)
-// }
+function loadView(view) {
+  // 路由懒加载
+  return (resolve) => require([`@/views${view}`], resolve);
+  // return () => import(`@/views${view}`)
+}

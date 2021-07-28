@@ -21,7 +21,7 @@
         </div>
         <!-- 用户选项 -->
         <el-dropdown @command="handleCommand">
-          <el-avatar :size="40" :src="this.$store.state.avatar" />
+          <el-avatar :size="40" src="http://qiniu.drunkery.cn/user2.jpg" />
           <i class="el-icon-caret-bottom" />
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="setting">

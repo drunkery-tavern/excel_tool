@@ -151,7 +151,7 @@
     import {getRequest, postRequest} from "../utils/api";
     import SparkMD5 from 'spark-md5'
     export default {
-        name: "MatchInactive",
+        name: "matchInactive",
         data() {
             return {
                 isUploaded: false,
