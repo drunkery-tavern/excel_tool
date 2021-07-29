@@ -45,6 +45,16 @@ export const postKeyValueRequest = (url, params) => {
         }
     });
 };
+
+export const postMultipartRequest = (url, params) => {
+    return axios({
+        method: 'post',
+        url: `${base}${url}`,
+        data: params,
+        headers: {'Content-Type': 'multipart/form-data'},
+    })
+};
+
 export const postRequest = (url, params) => {
     return axios({
         method: 'post',

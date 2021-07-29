@@ -30,9 +30,9 @@ func NewExcelApi() *ExcelApi {
 func (e *ExcelApi) UploadExcel(c *gin.Context) {
 	form, _ := c.MultipartForm()
 	files := form.File["files"]
+	savePath := common.FileSavePath
 	for _, file := range files {
 		log.Println(file.Filename)
-		savePath := common.FileSavePath
 		_, err := os.Stat(savePath)
 		if !os.IsExist(err) {
 			if err := os.MkdirAll(savePath, os.ModePerm); err != nil {
@@ -42,6 +42,16 @@ func (e *ExcelApi) UploadExcel(c *gin.Context) {
 		dst := path.Join(savePath, file.Filename)
 		_ = c.SaveUploadedFile(file, dst)
 	}
+	file, err := ExcelService.MergeExcel(files)
+	if err != nil {
+		e.RespFailWithDesc(c, http.StatusBadRequest, common.MergeExcelFail)
+		return
+	}
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Disposition", "attachment; filename="+file.Filename)
+	c.Header("Content-Transfer-Encoding", "binary")
+	c.File(file.Filename)
+	return
 }
 
 func (e *ExcelApi) GetExcelData(c *gin.Context) {

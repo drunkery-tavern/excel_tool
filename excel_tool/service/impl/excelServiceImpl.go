@@ -21,6 +21,25 @@ type ExcelServiceImpl struct {
 	wg sync.WaitGroup
 }
 
+func (e *ExcelServiceImpl) MergeExcel(files []*multipart.FileHeader) (file *multipart.FileHeader, err error) {
+	f, err := excelize.OpenFile(common.FileSavePath + files[0].Filename)
+	if err != nil {
+		logging.Logger.Error(err)
+		return nil, err
+	}
+	err = f.InsertCol(f.GetSheetName(0), "A")
+	if err != nil {
+		return nil, err
+	}
+	cols, err := f.Cols(f.GetSheetName(0))
+	cols.Next()
+	err = f.Save()
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 func (e *ExcelServiceImpl) MergeFileMd5(md5 string, fileName string) error {
 	finishDir := "./finish/"
 	dir := "./chunk/" + md5
