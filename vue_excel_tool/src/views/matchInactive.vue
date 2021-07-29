@@ -27,7 +27,15 @@
                                 @file-success="onFileSuccess"
                                 @file-error="onFileError"
                         >
-                            <uploader-btn>导入文件</uploader-btn>
+                            <uploader-unsupport></uploader-unsupport>
+                            <uploader-drop>
+                                <p>将文件拖放到此处进行上传或</p>
+                                <uploader-btn style=" display: inline-block;line-height: 1;white-space: nowrap;cursor: pointer;text-align: center;
+                                    box-sizing: border-box; margin: 0;transition: .1s;font-weight: 500; padding: 12px 20px;
+                                    font-size: 12px; border-radius: 4px;    color: #FFF;background-color: #409EFF;border-color: #409EFF;">
+                                    选择文件
+                                </uploader-btn>
+                            </uploader-drop>
                             <uploader-list/>
                         </uploader>
                     </div>
@@ -150,6 +158,7 @@
 <script>
     import {getRequest, postRequest} from "../utils/api";
     import SparkMD5 from 'spark-md5'
+
     export default {
         name: "matchInactive",
         data() {
@@ -204,7 +213,7 @@
                     md5 = SparkMD5.ArrayBuffer.hash(e.target.result, false);
                     file.uniqueIdentifier = md5;
                     if (md5 !== '') {
-                        const res = await getRequest("/excel/simple/check", {md5: md5});
+                        const res = await this.getRequest("/excel/simple/check", {md5: md5});
                         console.log(res);
                         if (res.code === 0) {
                             if (res.data.isDone) {
@@ -237,7 +246,7 @@
             },
             // 上传成功
             async onFileSuccess(rootFile, file) {
-                const response = await getRequest("/excel/simple/merge", {
+                const response = await this.getRequest("/excel/simple/merge", {
                     md5: file.uniqueIdentifier,
                     fileName: file.name
                 });
@@ -283,7 +292,7 @@
                 formdata.append("columnValue", this.getColumnIndex(this.columnValue));
                 formdata.append("exportColumnValue", this.getColumnIndex(this.exportColumnValue));
                 formdata.append("sheetIndex", this.sheetIndex);
-                postRequest("/excel/inactive/user", formdata).then(res=>{
+                this.postRequest("/excel/inactive/user", formdata).then(res=>{
                     if (res.code === 1000) {
                         console.log(res);
                         if (res.data.result.trim().length === 0) {

@@ -8,6 +8,8 @@ import NProgress from "nprogress";
 
 import {UTable, UTableColumn,} from 'umy-ui';
 
+import {deleteRequest, getRequest, postKeyValueRequest, postRequest, putRequest} from "./utils/api";
+
 import {
   Aside,
   Avatar,
@@ -15,30 +17,41 @@ import {
   BreadcrumbItem,
   Button,
   Card,
+  Carousel,
+  CarouselItem,
   Checkbox,
+  Col,
   Container,
   Dropdown,
   DropdownItem,
   DropdownMenu,
+  Empty,
   Form,
   FormItem,
   Header,
   Icon,
+  Image,
   Input,
   Loading,
   Main,
   Menu,
   MenuItem,
   Message,
+  MessageBox,
   Option,
+  Progress,
+  Row,
   Scrollbar,
   Select,
+  Step,
+  Steps,
   TabPane,
   Tabs,
-  Upload,
-  Carousel, CarouselItem, Image, Row, Col, Tag, Steps, Step, Progress, Empty
+  Tag,
+  Upload
 } from 'element-ui';
 import {generaMenu} from "./utils/menu";
+import axios from "axios";
 
 Vue.use(UTableColumn);
 Vue.use(UTable);
@@ -81,7 +94,15 @@ Vue.use(Progress);
 Vue.use(Empty);
 
 
+Vue.prototype.axios = axios;
+Vue.prototype.postRequest = postRequest;
+Vue.prototype.postKeyValueRequest = postKeyValueRequest;
+Vue.prototype.putRequest = putRequest;
+Vue.prototype.deleteRequest = deleteRequest;
+Vue.prototype.getRequest = getRequest;
+
 Vue.prototype.$message = Message;
+Vue.prototype.$confirm = MessageBox.confirm;
 VueClipboard.config.autoSetContainer = true; // add this line
 Vue.use(VueClipboard);
 Vue.config.productionTip = false;

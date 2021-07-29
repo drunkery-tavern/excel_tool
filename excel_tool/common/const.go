@@ -15,7 +15,7 @@ const (
 //urls
 const (
 	ExcelBaseUrl    = "/excel"
-	UploadExcel     = "/import"
+	UploadExcel     = "/multi/upload"
 	GetExcelData    = "/table"
 	GetInactiveUser = "/inactive/user"
 	Upload          = "/simple/upload"

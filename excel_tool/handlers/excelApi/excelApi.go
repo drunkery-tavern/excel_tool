@@ -8,6 +8,7 @@ import (
 	"excel_tool/service"
 	"excel_tool/service/impl"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -27,28 +28,20 @@ func NewExcelApi() *ExcelApi {
 }
 
 func (e *ExcelApi) UploadExcel(c *gin.Context) {
-	file, err := c.FormFile("file")
-	if err != nil {
-		e.RespFailWithDesc(c, http.StatusBadRequest, common.InvalidRequestParams)
-		return
-	}
-	savePath := common.FileSavePath
-	_, err = os.Stat(savePath)
-	if !os.IsExist(err) {
-		if err := os.MkdirAll(savePath, os.ModePerm); err != nil {
-			panic(err)
+	form, _ := c.MultipartForm()
+	files := form.File["files"]
+	for _, file := range files {
+		log.Println(file.Filename)
+		savePath := common.FileSavePath
+		_, err := os.Stat(savePath)
+		if !os.IsExist(err) {
+			if err := os.MkdirAll(savePath, os.ModePerm); err != nil {
+				panic(err)
+			}
 		}
+		dst := path.Join(savePath, file.Filename)
+		_ = c.SaveUploadedFile(file, dst)
 	}
-	dst := path.Join(savePath, file.Filename)
-	_ = c.SaveUploadedFile(file, dst)
-	data, err := ExcelService.ParseExcel(file.Filename)
-	//data, err := ExcelService.GetSheetList(file)
-	if err != nil {
-		logging.Logger.Debug("err:", err)
-		e.RespFailWithDesc(c, http.StatusBadRequest, common.InvalidRequestParams)
-		return
-	}
-	e.RespSuccess(c, http.StatusOK, common.SuccessOK, data)
 }
 
 func (e *ExcelApi) GetExcelData(c *gin.Context) {
