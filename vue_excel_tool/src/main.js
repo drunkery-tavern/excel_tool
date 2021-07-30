@@ -39,7 +39,7 @@ import {
   Message,
   MessageBox,
   Option,
-  Progress,
+  Progress, Radio, RadioGroup,
   Row,
   Scrollbar,
   Select,
@@ -92,6 +92,8 @@ Vue.use(Steps);
 Vue.use(Step);
 Vue.use(Progress);
 Vue.use(Empty);
+Vue.use(Radio);
+Vue.use(RadioGroup);
 
 
 Vue.prototype.axios = axios;

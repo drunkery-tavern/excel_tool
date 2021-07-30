@@ -1,8 +1,14 @@
 package common
 
-const ()
+const (
+	InsertColM        = "M"
+	InsertColN        = "N"
+	DefaultSheetIndex = 0
+	IDIndex           = 0
+	WorkIndex         = 9
+	WorkLinkIndex     = 10
+)
 
-//RedisPrefixConst
 const (
 	FileDataKey = "file_data_"
 )

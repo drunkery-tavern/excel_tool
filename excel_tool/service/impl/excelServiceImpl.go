@@ -10,6 +10,7 @@ import (
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"gorm.io/gorm"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"os"
 	"strconv"
@@ -21,23 +22,145 @@ type ExcelServiceImpl struct {
 	wg sync.WaitGroup
 }
 
-func (e *ExcelServiceImpl) MergeExcel(files []*multipart.FileHeader) (file *multipart.FileHeader, err error) {
+func (e *ExcelServiceImpl) GetTableHeader(files []*multipart.FileHeader) (*models.ResponseData, error) {
+	var tableHeader [][]string
+	for _, file := range files {
+		f, err := excelize.OpenFile(common.FileSavePath + file.Filename)
+		if err != nil {
+			return nil, err
+		}
+		// 获取 Sheet1 上所有单元格
+		rows, err := f.GetRows(f.GetSheetName(common.DefaultSheetIndex))
+		if err != nil {
+			return nil, err
+		}
+		tableHeader = append(tableHeader, rows[0])
+	}
+	return &models.ResponseData{
+		TableHeader: tableHeader,
+	}, nil
+}
+
+func (e *ExcelServiceImpl) MergeExcel(files []*multipart.FileHeader, model string) (string, error) {
+	switch model {
+	case "1":
+		return e.MergeBDExcel(files)
+	case "2":
+		return e.MergeWorkExcel(files)
+	default:
+		return "", errors.New("未知模式")
+	}
+}
+
+func (e *ExcelServiceImpl) MergeBDExcel(files []*multipart.FileHeader) (string, error) {
+	//渠道 区域
+	type SourceData struct {
+		Channel string
+		Area    string
+	}
+	f, err := excelize.OpenFile(common.FileSavePath + files[1].Filename)
+	if err != nil {
+		logging.Logger.Error(err)
+		return "", nil
+	}
+	rows, err := f.GetRows(f.GetSheetName(common.DefaultSheetIndex))
+	if err != nil {
+		return "", err
+	}
+	var sourceDataList []*SourceData
+	for _, row := range rows[1:] {
+		sourceDataList = append(sourceDataList, &SourceData{
+			Channel: row[1],
+			Area:    row[0],
+		})
+	}
+
+	f1, err := excelize.OpenFile(common.FileSavePath + files[0].Filename)
+	if err != nil {
+		logging.Logger.Error(err)
+		return "", nil
+	}
+	dstRows, err := f1.GetRows(f1.GetSheetName(common.DefaultSheetIndex))
+	if err != nil {
+		return "", err
+	}
+	for index, row := range dstRows[1:] {
+		for _, sourceData := range sourceDataList {
+			if strings.EqualFold(row[5], sourceData.Channel) {
+				//给大区设值
+				err := f1.SetCellValue(f1.GetSheetName(common.DefaultSheetIndex), fmt.Sprintf("E%d", index+2), sourceData.Area)
+				if err != nil {
+					return "", err
+				}
+			}
+		}
+	}
+	err = f1.Save()
+	if err != nil {
+		return "", err
+	}
+	return files[0].Filename, nil
+}
+
+func (e *ExcelServiceImpl) MergeWorkExcel(files []*multipart.FileHeader) (string, error) {
 	f, err := excelize.OpenFile(common.FileSavePath + files[0].Filename)
 	if err != nil {
 		logging.Logger.Error(err)
-		return nil, err
+		return "", nil
 	}
-	err = f.InsertCol(f.GetSheetName(0), "A")
+	err = f.InsertCol(f.GetSheetName(common.DefaultSheetIndex), common.InsertColM)
+	err = f.InsertCol(f.GetSheetName(common.DefaultSheetIndex), common.InsertColN)
 	if err != nil {
-		return nil, err
+		return "", nil
 	}
-	cols, err := f.Cols(f.GetSheetName(0))
-	cols.Next()
+	cols, err := f.Cols(f.GetSheetName(common.DefaultSheetIndex))
+	if err != nil {
+		return "", nil
+	}
+	var ids []string
+	for cols.Next() {
+		//返回当前列所有行的值
+		col, err := cols.Rows()
+		if err != nil {
+			return "", nil
+		}
+		ids = append(ids, col[1:]...)
+		break
+	}
+	log.Println(ids)
+	//遍历ids获取与id相同的作品以及链接
+	f1, err := excelize.OpenFile(common.FileSavePath + files[1].Filename)
+	if err != nil {
+		logging.Logger.Error(err)
+		return "", nil
+	}
+	rows, err := f1.GetRows(f1.GetSheetName(common.DefaultSheetIndex))
+	if err != nil {
+		return "", nil
+	}
+	var works []*Works
+	for index, row := range rows[1:] {
+		if len(row) == 0 {
+			break
+		}
+		if row[common.IDIndex] == ids[index] {
+			works = append(works, &Works{
+				Work:     row[common.WorkIndex],
+				WorkLink: row[common.WorkLinkIndex],
+			})
+		}
+	}
+
 	err = f.Save()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return nil, nil
+	return "", nil
+}
+
+type Works struct {
+	Work     string
+	WorkLink string
 }
 
 func (e *ExcelServiceImpl) MergeFileMd5(md5 string, fileName string) error {

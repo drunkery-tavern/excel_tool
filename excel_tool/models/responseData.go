@@ -8,6 +8,7 @@ type ResponseData struct {
 	ExportColumnValue string       `json:"exportColumnValue"`
 	Result            string       `json:"result"`
 	Count             int          `json:"count"`
+	TableHeader       [][]string   `json:"table_header"`
 }
 
 type Sheet struct {
@@ -18,4 +19,8 @@ type Sheet struct {
 type SheetList struct {
 	SheetIndex int    `json:"sheet_index"`
 	SheetName  string `json:"sheet_name"`
+}
+
+type Headers struct {
+	Header []string `json:"header"`
 }

@@ -13,5 +13,6 @@ type IExcelService interface {
 	SaveChunk(chunk models.SimpleUploader) error
 	CheckFileMd5(md5 string) (err error, uploads []models.SimpleUploader, isDone bool)
 	MergeFileMd5(md5 string, name string) error
-	MergeExcel(files []*multipart.FileHeader) (file *multipart.FileHeader, err error)
+	MergeExcel(files []*multipart.FileHeader, model string) (filename string, err error)
+	GetTableHeader(files []*multipart.FileHeader) (*models.ResponseData, error)
 }
