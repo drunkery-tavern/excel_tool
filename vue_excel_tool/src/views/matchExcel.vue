@@ -78,7 +78,7 @@
                 } else {
                     //创建FormData();主要用于发送表单数据
                     let paramFormData = new FormData();
-                    console.log(this.model)
+                    console.log(this.model);
                     //遍历 fileList
                     that.fileList.forEach(file => {
                         paramFormData.append("files", file.raw);
@@ -95,6 +95,7 @@
                         method: 'post',
                         data: paramFormData,
                         headers: {'Content-Type': 'multipart/form-data'},
+                        responseType: 'arraybuffer',
                         onUploadProgress: progressEvent => {
                             // progressEvent.loaded:已上传文件大小
                             // progressEvent.total:被上传文件的总大小
@@ -111,6 +112,20 @@
                             that.progressFlag = false;
                             that.progressPercent = 0;
                             that.$refs.upload.clearFiles();
+                            const url = window.URL.createObjectURL(new Blob([res.data], {
+                                type: "application/vnd.ms-excel"
+                            }));
+                            //获取heads中的filename文件名
+                            let temp = res.headers["content-disposition"].split(";")[1].split("filename=")[1];
+                            const iconv = require('iconv-lite');
+                            let fileName = iconv.decode(temp, 'utf8');
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a)
                         }
                         this.filenameList = [];
                     })

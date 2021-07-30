@@ -61,7 +61,7 @@ func (e *ExcelServiceImpl) MergeBDExcel(files []*multipart.FileHeader) (string, 
 	f, err := excelize.OpenFile(common.FileSavePath + files[1].Filename)
 	if err != nil {
 		logging.Logger.Error(err)
-		return "", nil
+		return "", err
 	}
 	rows, err := f.GetRows(f.GetSheetName(common.DefaultSheetIndex))
 	if err != nil {
@@ -78,7 +78,7 @@ func (e *ExcelServiceImpl) MergeBDExcel(files []*multipart.FileHeader) (string, 
 	f1, err := excelize.OpenFile(common.FileSavePath + files[0].Filename)
 	if err != nil {
 		logging.Logger.Error(err)
-		return "", nil
+		return "", err
 	}
 	dstRows, err := f1.GetRows(f1.GetSheetName(common.DefaultSheetIndex))
 	if err != nil {
@@ -106,23 +106,23 @@ func (e *ExcelServiceImpl) MergeWorkExcel(files []*multipart.FileHeader) (string
 	f, err := excelize.OpenFile(common.FileSavePath + files[0].Filename)
 	if err != nil {
 		logging.Logger.Error(err)
-		return "", nil
+		return "", err
 	}
 	err = f.InsertCol(f.GetSheetName(common.DefaultSheetIndex), common.InsertColM)
 	err = f.InsertCol(f.GetSheetName(common.DefaultSheetIndex), common.InsertColN)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	cols, err := f.Cols(f.GetSheetName(common.DefaultSheetIndex))
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	var ids []string
 	for cols.Next() {
 		//返回当前列所有行的值
 		col, err := cols.Rows()
 		if err != nil {
-			return "", nil
+			return "", err
 		}
 		ids = append(ids, col[1:]...)
 		break
@@ -132,11 +132,11 @@ func (e *ExcelServiceImpl) MergeWorkExcel(files []*multipart.FileHeader) (string
 	f1, err := excelize.OpenFile(common.FileSavePath + files[1].Filename)
 	if err != nil {
 		logging.Logger.Error(err)
-		return "", nil
+		return "", err
 	}
 	rows, err := f1.GetRows(f1.GetSheetName(common.DefaultSheetIndex))
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	var works []*Works
 	for index, row := range rows[1:] {

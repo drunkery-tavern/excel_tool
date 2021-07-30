@@ -6,8 +6,6 @@ import uploader from 'vue-simple-uploader'
 import store from "./store";
 import NProgress from "nprogress";
 
-import {UTable, UTableColumn,} from 'umy-ui';
-
 import {deleteRequest, getRequest, postKeyValueRequest, postRequest, putRequest} from "./utils/api";
 
 import {
@@ -52,9 +50,6 @@ import {
 } from 'element-ui';
 import {generaMenu} from "./utils/menu";
 import axios from "axios";
-
-Vue.use(UTableColumn);
-Vue.use(UTable);
 
 Vue.use(Button);
 Vue.use(Input);

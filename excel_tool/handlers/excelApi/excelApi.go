@@ -53,7 +53,6 @@ func (e *ExcelApi) UploadExcel(c *gin.Context) {
 	c.Header("Content-Disposition", "attachment; filename="+filename)
 	c.Header("Content-Transfer-Encoding", "binary")
 	c.File(common.FileSavePath + filename)
-	return
 }
 
 func (e *ExcelApi) GetExcelData(c *gin.Context) {

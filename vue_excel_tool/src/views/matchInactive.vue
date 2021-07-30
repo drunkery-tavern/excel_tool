@@ -4,19 +4,6 @@
             <div>
                 <div style="display: flex;justify-content: space-between">
                     <div>
-                        <!--<el-upload
-                                :show-file-list="true"
-                                :before-upload="beforeUpload"
-                                :on-success="onSuccess"
-                                :on-error="onError"
-                                :disabled="importDataDisabled"
-                                :limit="1"
-                                style="display: inline-flex;margin-right: 8px"
-                                action="/excel/import">
-                            <el-button :disabled="importDataDisabled" type="success" :icon="importDataBtnIcon">
-                                {{importDataBtnText}}
-                            </el-button>
-                        </el-upload>-->
                         <uploader
                                 :options="options"
                                 :file-status-text="statusText"
@@ -156,7 +143,6 @@
 </template>
 
 <script>
-    import {getRequest, postRequest} from "../utils/api";
     import SparkMD5 from 'spark-md5'
 
     export default {
@@ -213,10 +199,10 @@
                     md5 = SparkMD5.ArrayBuffer.hash(e.target.result, false);
                     file.uniqueIdentifier = md5;
                     if (md5 !== '') {
-                        const res = await this.getRequest("/excel/simple/check", {md5: md5});
+                        const res = await that.getRequest("/excel/simple/check", {md5: md5});
                         console.log(res);
-                        if (res.code === 0) {
-                            if (res.data.isDone) {
+                        if (res.data.data.code === 0) {
+                            if (res.data.data.isDone) {
                                 // 上传成功过
                                 this.isUploaded = true;
                                 that.$message({
@@ -226,7 +212,7 @@
                                 file.cancel()
                             } else {
                                 this.isUploaded = false;
-                                this.notUploadedChunks = res.data.chunks;
+                                this.notUploadedChunks = res.data.data.chunks;
                                 if (this.notUploadedChunks.length) {
                                     file.resume()
                                 }
@@ -251,10 +237,10 @@
                     fileName: file.name
                 });
                 console.log(response);
-                this.tableHeader = response.data.sheet.table_header;
+                this.tableHeader = response.data.data.sheet.table_header;
                 // this.tableData = response.data.sheet.table_data;
-                this.sheetNameList = response.data.sheet_name_list;
-                this.sheetList = response.data.sheet_list;
+                this.sheetNameList = response.data.data.sheet_name_list;
+                this.sheetList = response.data.data.sheet_list;
                 this.file = file.file;
                 this.loading = false;
                 this.showForm = true;
@@ -293,14 +279,14 @@
                 formdata.append("exportColumnValue", this.getColumnIndex(this.exportColumnValue));
                 formdata.append("sheetIndex", this.sheetIndex);
                 this.postRequest("/excel/inactive/user", formdata).then(res=>{
-                    if (res.code === 1000) {
+                    if (res.data.code === 1000) {
                         console.log(res);
-                        if (res.data.result.trim().length === 0) {
+                        if (res.data.data.result.trim().length === 0) {
                             this.$message.success("该群全部成员都已激活！")
                         } else {
                             this.$message.success("@文本生成成功");
-                            this.resultString = res.data.result;
-                            this.count = res.data.count;
+                            this.resultString = res.data.data.result;
+                            this.count = res.data.data.count;
                         }
                     }
                 })
