@@ -5,9 +5,7 @@
             <el-upload
                     class="upload-demo"
                     drag
-                    action="/excel/schedule/upload"
-                    :on-success="onSuccess"
-            >
+                    :httpRequest="onUpload" action="string">
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                 <div class="el-upload__tip" slot="tip">大文件上传较慢请耐心等待...</div>
@@ -20,11 +18,40 @@
 <script>
     export default {
         name: "scheduleSplit",
+        data() {
+            return {
+                downloadDisabled: false,
+            }
+        },
         methods: {
-            onSuccess(response, file, fileList) {
-                this.importDataBtnText = '导入数据';
-                this.importDataBtnIcon = 'el-icon-upload2';
-                this.importDataDisabled = false;
+            onUpload(config) {
+                console.log(config);
+                //action="/excel/schedule/upload"
+                let paramFormData = new FormData();
+                paramFormData.append("file", config.file);
+                //axios 发出请求
+                this.axios({
+                    url: "/excel/schedule/upload",
+                    method: 'post',
+                    data: paramFormData,
+                    headers: {'Content-Type': 'multipart/form-data'},
+                    responseType: 'arraybuffer',
+                }).then(res => {
+                    const url = window.URL.createObjectURL(new Blob([res.data], {
+                        type: "application/vnd.ms-excel"
+                    }));
+                    //获取heads中的filename文件名
+                    let temp = res.headers["content-disposition"].split(";")[1].split("filename=")[1];
+                    const iconv = require('iconv-lite');
+                    let fileName = iconv.decode(temp, 'utf8');
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a)
+                })
             },
         }
     }

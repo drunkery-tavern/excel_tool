@@ -4,7 +4,7 @@
         <div style="width: 400px">
             <el-upload class="upload-demo"
                        ref="upload"
-                       action=""
+                       action="string"
                        :on-change="onChange"
                        :on-remove="handleRemove"
                        :before-remove="beforeRemove"

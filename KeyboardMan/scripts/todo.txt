@@ -1,11 +1,11 @@
 
 [
- [200, "EK", "key down",         (8, 'Back',0)],  // 等待 `200ms` 后 `按下Back键`；
- [100, "EK", "key up",         (8, 'Back',0)],  // 等待 `100ms` 后 `抬起Back键`；
- [200, "EK", "key down",         (13, 'Return', 0)],  // 等待 `200ms` 后 `按下Return键`
- [100, "EK", "key up",         (13, 'Return', 0)],  // 等待 `100ms` 后 `抬起Return键`
- [200, "EK", "key down",         (37, 'Left', 0)],  // 等待 `200ms` 后 `按下Left键`
- [100, "EK", "key up",         (37, 'Left', 0)]  // 等待 `100ms` 后 `抬起Left键`
+ [50, "EK", "key down",         (8, 'Back',0)],  // 等待 `200ms` 后 `按下Back键`；
+ [10, "EK", "key up",         (8, 'Back',0)],  // 等待 `100ms` 后 `抬起Back键`；
+ [50, "EK", "key down",         (13, 'Return', 0)],  // 等待 `200ms` 后 `按下Return键`
+ [10, "EK", "key up",         (13, 'Return', 0)],  // 等待 `100ms` 后 `抬起Return键`
+ [50, "EK", "key down",         (37, 'Left', 0)],  // 等待 `200ms` 后 `按下Left键`
+ [10, "EK", "key up",         (37, 'Left', 0)]  // 等待 `100ms` 后 `抬起Left键`
 ]
 
 

@@ -7,7 +7,6 @@ import (
 	"excel_tool/models"
 	"excel_tool/service"
 	"excel_tool/service/impl"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -179,7 +178,7 @@ func (e *ExcelApi) ScheduleUpload(c *gin.Context) {
 		return
 	}
 	c.Header("Content-Type", "application/octet-stream")
-	c.Header("Content-Disposition", "attachment; filename="+fmt.Sprintf("%s(已拆分)", filename))
+	c.Header("Content-Disposition", "attachment; filename="+filename)
 	c.Header("Content-Transfer-Encoding", "binary")
 	c.File(common.FileSavePath + filename)
 }
