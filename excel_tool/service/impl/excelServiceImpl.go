@@ -85,7 +85,6 @@ func (e *ExcelServiceImpl) ScheduleSplit(file *multipart.FileHeader) (filename s
 		} else {
 			//创建sheet，赋值表头
 			sheetIndex := f.NewSheet(row[20])
-
 			style, err := f.NewStyle(
 				`{"alignment":{"horizontal":"center","vertical":"center"}}`,
 			)
@@ -105,6 +104,19 @@ func (e *ExcelServiceImpl) ScheduleSplit(file *multipart.FileHeader) (filename s
 				logging.Logger.Error(err)
 				return "", err
 			}
+			fillStyle, err := f.NewStyle(`{"fill":{"type":"pattern","color":["#c5deb5"],"pattern":1},"alignment":{"horizontal":"center","vertical":"center"}}`)
+			if err != nil {
+				logging.Logger.Error(err)
+				return "", err
+			}
+			cellSlice := []string{"A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1"}
+			for _, cell := range cellSlice {
+				err = f.SetCellStyle(row[20], cell, cell, fillStyle)
+				if err != nil {
+					logging.Logger.Error(err)
+					return "", err
+				}
+			}
 			err = f.SetSheetRow(f.GetSheetName(sheetIndex), "A1", &tableHeadData)
 			if err != nil {
 				logging.Logger.Error(err)
@@ -119,6 +131,7 @@ func (e *ExcelServiceImpl) ScheduleSplit(file *multipart.FileHeader) (filename s
 			sheetMap[f.GetSheetName(sheetIndex)] = 2 + 1
 		}
 	}
+	f.DeleteSheet(f.GetSheetName(common.DefaultSheetIndex))
 	err = f.Save()
 	if err != nil {
 		logging.Logger.Error(err)
