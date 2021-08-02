@@ -1,6 +1,9 @@
 <template>
     <!--    <el-empty description="敬请期待"></el-empty>-->
-    <el-card>
+    <el-card v-loading="loading"
+             element-loading-text="数据拼命解析中,解析完成将自动下载"
+             element-loading-spinner="el-icon-loading"
+             element-loading-background="rgba(0, 0, 0, 0.8)">
         <div style="width: 400px">
             <el-upload
                     class="upload-demo"
@@ -9,7 +12,6 @@
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                 <div class="el-upload__tip" slot="tip">大文件上传较慢请耐心等待...</div>
-                <div class="el-upload__tip" slot="tip">表格数据越多，解析越慢，解析完成将自动下载</div>
             </el-upload>
         </div>
     </el-card>
@@ -20,13 +22,13 @@
         name: "scheduleSplit",
         data() {
             return {
-                downloadDisabled: false,
+                loading: false,
             }
         },
         methods: {
             onUpload(config) {
+                this.loading = true;
                 console.log(config);
-                //action="/excel/schedule/upload"
                 let paramFormData = new FormData();
                 paramFormData.append("file", config.file);
                 //axios 发出请求
@@ -37,6 +39,7 @@
                     headers: {'Content-Type': 'multipart/form-data'},
                     responseType: 'arraybuffer',
                 }).then(res => {
+                    this.loading = false;
                     const url = window.URL.createObjectURL(new Blob([res.data], {
                         type: "application/vnd.ms-excel"
                     }));
@@ -74,5 +77,4 @@
         -webkit-box-sizing: border-box;
         cursor: pointer;
     }
-
 </style>
