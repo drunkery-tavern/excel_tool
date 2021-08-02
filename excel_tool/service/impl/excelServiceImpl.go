@@ -22,6 +22,111 @@ type ExcelServiceImpl struct {
 	wg sync.WaitGroup
 }
 
+func (e *ExcelServiceImpl) ScheduleSplit(file *multipart.FileHeader) (filename string, err error) {
+	tableHeadData := []string{"id", "姓名", "省", "市", "区", "学校名", "年级", "班级", "得分", "作品链接"}
+	////"姓名","省","市","区","学校名","年级","班级","得分","作品链接"
+	//type ScheduleInfo struct {
+	//	ID       string
+	//	Name     string
+	//	Province string
+	//	City     string
+	//	Area     string
+	//	School   string
+	//	Grade    string
+	//	Class    string
+	//	Score    string
+	//	WorkLink string
+	//}
+	f, err := excelize.OpenFile(common.FileSavePath + file.Filename)
+	if err != nil {
+		logging.Logger.Error(err)
+		return "", err
+	}
+	rows, err := f.GetRows(f.GetSheetName(common.DefaultSheetIndex))
+	if err != nil {
+		logging.Logger.Error(err)
+		return "", err
+	}
+	//var scheduleInfoSlice []*ScheduleInfo
+	sheetMap := make(map[string]int64)
+	for _, row := range rows[1:] {
+		if len(row) == 0 {
+			break
+		}
+		if row[18] == "未激活" {
+			continue
+		}
+		//scheduleInfo := &ScheduleInfo{
+		//	ID:       row[0],
+		//	Name:     row[2],
+		//	Province: row[9],
+		//	City:     row[10],
+		//	Area:     row[11],
+		//	School:   row[12],
+		//	Grade:    row[13],
+		//	Class:    row[14],
+		//	Score:    row[23],
+		//	WorkLink: row[24],
+		//}
+		var rowSlice []string
+		rowSlice = append(rowSlice, row[0], row[2], row[9], row[10], row[11], row[12], row[13], row[14], row[23], row[24])
+		//scheduleInfoSlice = append(scheduleInfoSlice)
+		sheetList := f.GetSheetList()
+		if common.SliceFind(sheetList, row[20]) {
+			//获取插入的行
+			_, currentRow := common.GetCurrentRow(sheetMap, row[20])
+			//把数据添加到表格
+			err = f.SetSheetRow(row[20], fmt.Sprintf("A%d", currentRow), &rowSlice)
+			if err != nil {
+				logging.Logger.Error(err)
+				return "", err
+			}
+			sheetMap[row[20]] = currentRow + 1
+		} else {
+			//创建sheet，赋值表头
+			sheetIndex := f.NewSheet(row[20])
+
+			style, err := f.NewStyle(
+				`{"alignment":{"horizontal":"center","vertical":"center"}}`,
+			)
+			if err != nil {
+				logging.Logger.Error(err)
+				return "", err
+			}
+			err = f.SetColWidth(row[20], "A", "E", 8)
+			err = f.SetColWidth(row[20], "F", "F", 40)
+			err = f.SetColWidth(row[20], "G", "I", 10)
+			err = f.SetColWidth(row[20], "J", "J", 185)
+			if err != nil {
+				return "", err
+			}
+			err = f.SetColStyle(row[20], "A:J", style)
+			if err != nil {
+				logging.Logger.Error(err)
+				return "", err
+			}
+			err = f.SetSheetRow(f.GetSheetName(sheetIndex), "A1", &tableHeadData)
+			if err != nil {
+				logging.Logger.Error(err)
+				return "", err
+			}
+			//把数据添加到表格
+			err = f.SetSheetRow(f.GetSheetName(sheetIndex), "A2", &rowSlice)
+			if err != nil {
+				logging.Logger.Error(err)
+				return "", err
+			}
+			sheetMap[f.GetSheetName(sheetIndex)] = 2 + 1
+		}
+	}
+	err = f.Save()
+	if err != nil {
+		logging.Logger.Error(err)
+		return "", err
+	}
+	return file.Filename, nil
+}
+
 func (e *ExcelServiceImpl) GetTableHeader(files []*multipart.FileHeader) (*models.ResponseData, error) {
 	var tableHeader [][]string
 	for _, file := range files {
@@ -69,6 +174,9 @@ func (e *ExcelServiceImpl) MergeBDExcel(files []*multipart.FileHeader) (string, 
 	}
 	var sourceDataList []*SourceData
 	for _, row := range rows[1:] {
+		if len(row) == 0 {
+			break
+		}
 		sourceDataList = append(sourceDataList, &SourceData{
 			Channel: row[1],
 			Area:    row[0],
@@ -145,6 +253,7 @@ func (e *ExcelServiceImpl) MergeWorkExcel(files []*multipart.FileHeader) (string
 		}
 		if row[common.IDIndex] == ids[index] {
 			works = append(works, &Works{
+				ID:       row[0],
 				Work:     row[common.WorkIndex],
 				WorkLink: row[common.WorkLinkIndex],
 			})
@@ -159,6 +268,7 @@ func (e *ExcelServiceImpl) MergeWorkExcel(files []*multipart.FileHeader) (string
 }
 
 type Works struct {
+	ID       string
 	Work     string
 	WorkLink string
 }

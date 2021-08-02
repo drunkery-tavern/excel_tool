@@ -4,6 +4,7 @@ import Layout from "../layout/index.vue";
 import home from "../views/home.vue";
 import matchInactive from "../views/matchInactive.vue";
 import matchExcel from "../views/matchExcel.vue";
+import scheduleSplit from "../views/scheduleSplit.vue";
 
 export function generaMenu() {
   let userMenuList = [
@@ -43,6 +44,19 @@ export function generaMenu() {
       ],
       component: Layout,
       path: '/match-excel'
+    },
+
+    {
+      children: [
+        {
+          component: scheduleSplit,
+          icon: "el-icon-s-order",
+          name: "班期拆分",
+          path: '/schedule-split'
+        }
+      ],
+      component: Layout,
+      path: '/schedule-split'
     },
 
   ];

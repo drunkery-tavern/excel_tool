@@ -84,7 +84,7 @@
                         paramFormData.append("files", file.raw);
                         paramFormData.append("fileNames", file.name);
                     });
-                    paramFormData.append("model", this.model)
+                    paramFormData.append("model", this.model);
                     //修改progressFlag值
                     that.progressFlag = true;
                     //控制台打印文件信息

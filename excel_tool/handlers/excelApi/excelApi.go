@@ -7,6 +7,7 @@ import (
 	"excel_tool/models"
 	"excel_tool/service"
 	"excel_tool/service/impl"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -157,4 +158,28 @@ func (e *ExcelApi) MergeFileMd5(c *gin.Context) {
 	}
 	e.RespSuccess(c, http.StatusOK, common.SuccessOK, data)
 
+}
+
+func (e *ExcelApi) ScheduleUpload(c *gin.Context) {
+	_, file, _ := c.Request.FormFile("file")
+	savePath := common.FileSavePath
+	log.Println(file.Filename)
+	_, err := os.Stat(savePath)
+	if !os.IsExist(err) {
+		if err := os.MkdirAll(savePath, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+	dst := path.Join(savePath, file.Filename)
+	_ = c.SaveUploadedFile(file, dst)
+	filename, err := ExcelService.ScheduleSplit(file)
+	if err != nil {
+		logging.Logger.Error(err)
+		e.RespFailWithDesc(c, http.StatusBadRequest, common.ScheduleSplitFail)
+		return
+	}
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Disposition", "attachment; filename="+fmt.Sprintf("%s(已拆分)", filename))
+	c.Header("Content-Transfer-Encoding", "binary")
+	c.File(common.FileSavePath + filename)
 }

@@ -206,3 +206,15 @@ func CreateDir(dirs ...string) (err error) {
 	}
 	return err
 }
+
+func GetCurrentRow(sheetMap map[string]int64, sheetName string) (bool, int64) {
+	i, ok := sheetMap[sheetName]
+	if ok {
+		//存在即返回value
+		return ok, i
+	} else {
+		//不存在即添加
+		sheetMap[sheetName] = 0
+		return ok, 0
+	}
+}

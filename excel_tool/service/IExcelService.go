@@ -15,4 +15,5 @@ type IExcelService interface {
 	MergeFileMd5(md5 string, name string) error
 	MergeExcel(files []*multipart.FileHeader, model string) (filename string, err error)
 	GetTableHeader(files []*multipart.FileHeader) (*models.ResponseData, error)
+	ScheduleSplit(file *multipart.FileHeader) (filename string, err error)
 }
