@@ -19,7 +19,7 @@ import {
   CarouselItem,
   Checkbox,
   Col,
-  Container,
+  Container, Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -89,6 +89,7 @@ Vue.use(Progress);
 Vue.use(Empty);
 Vue.use(Radio);
 Vue.use(RadioGroup);
+Vue.use(Divider);
 
 
 Vue.prototype.axios = axios;
