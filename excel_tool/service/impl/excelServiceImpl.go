@@ -206,6 +206,9 @@ func (e *ExcelServiceImpl) MergeBDExcel(files []*multipart.FileHeader) (string, 
 		return "", err
 	}
 	for index, row := range dstRows[1:] {
+		if len(row) == 0 {
+			break
+		}
 		for _, sourceData := range sourceDataList {
 			if strings.EqualFold(row[5], sourceData.Channel) {
 				//给大区设值
@@ -224,66 +227,109 @@ func (e *ExcelServiceImpl) MergeBDExcel(files []*multipart.FileHeader) (string, 
 }
 
 func (e *ExcelServiceImpl) MergeWorkExcel(files []*multipart.FileHeader) (string, error) {
-	f, err := excelize.OpenFile(common.FileSavePath + files[0].Filename)
+	type WorkInfo struct {
+		ID       string
+		Score    int
+		WorkLink string
+	}
+	//获取ID对应的作品和链接
+	f, err := excelize.OpenFile(common.FileSavePath + files[1].Filename)
 	if err != nil {
 		logging.Logger.Error(err)
-		return "", err
-	}
-	err = f.InsertCol(f.GetSheetName(common.DefaultSheetIndex), common.InsertColM)
-	err = f.InsertCol(f.GetSheetName(common.DefaultSheetIndex), common.InsertColN)
-	if err != nil {
 		return "", err
 	}
 	cols, err := f.Cols(f.GetSheetName(common.DefaultSheetIndex))
 	if err != nil {
+		logging.Logger.Error(err)
 		return "", err
 	}
-	var ids []string
+	currentCol := 0
+	var ids, scores, workLinks []string
 	for cols.Next() {
-		//返回当前列所有行的值
-		col, err := cols.Rows()
-		if err != nil {
-			return "", err
+		if currentCol == 1 {
+			col, err := cols.Rows()
+			if err != nil {
+				logging.Logger.Error(err)
+				return "", err
+			}
+			ids = append(ids, col[1:]...)
 		}
-		ids = append(ids, col[1:]...)
-		break
+		if currentCol == 10 {
+			col, err := cols.Rows()
+			if err != nil {
+				logging.Logger.Error(err)
+				return "", err
+			}
+			scores = append(scores, col[1:]...)
+		}
+
+		if currentCol == 5 {
+			col, err := cols.Rows()
+			if err != nil {
+				logging.Logger.Error(err)
+				return "", err
+			}
+			workLinks = append(workLinks, col[1:]...)
+		}
+		currentCol++
 	}
-	log.Println(ids)
-	//遍历ids获取与id相同的作品以及链接
-	f1, err := excelize.OpenFile(common.FileSavePath + files[1].Filename)
+	var workInfoSlice []*WorkInfo
+	for index, id := range ids {
+		workInfoSlice = append(workInfoSlice, &WorkInfo{
+			ID:       id,
+			Score:    common.GetScore(scores[index]),
+			WorkLink: workLinks[index],
+		})
+	}
+	file, err := excelize.OpenFile(common.FileSavePath + files[0].Filename)
 	if err != nil {
 		logging.Logger.Error(err)
 		return "", err
 	}
-	rows, err := f1.GetRows(f1.GetSheetName(common.DefaultSheetIndex))
+	sheetList := file.GetSheetList()
+	for _, sheet := range sheetList {
+		log.Println(sheet)
+		sheetRows, err := file.GetRows(sheet)
+		if err != nil {
+			logging.Logger.Error(err)
+			return "", err
+		}
+		for rowNum, row := range sheetRows[1:] {
+			if len(row) == 0 {
+				break
+			}
+			for _, workInfo := range workInfoSlice {
+				//log.Println(workInfo.ID)
+				//log.Println(row[0])
+				//log.Println("============end")
+				if workInfo.ID == row[0] {
+					log.Println(workInfo.Score)
+					err := file.SetCellValue(sheet, fmt.Sprintf("J%d", rowNum+2), workInfo.WorkLink)
+					if err != nil {
+						logging.Logger.Error(err)
+						return "", err
+					}
+					err = file.SetCellInt(sheet, fmt.Sprintf("I%d", rowNum+2), workInfo.Score)
+					if err != nil {
+						logging.Logger.Error(err)
+						return "", err
+					}
+				}
+			}
+		}
+		////删除id列
+		//err = file.RemoveCol(sheet, "A")
+		//if err != nil {
+		//	logging.Logger.Error(err)
+		//	return "", err
+		//}
+	}
+	err = file.Save()
 	if err != nil {
+		logging.Logger.Error(err)
 		return "", err
 	}
-	var works []*Works
-	for index, row := range rows[1:] {
-		if len(row) == 0 {
-			break
-		}
-		if row[common.IDIndex] == ids[index] {
-			works = append(works, &Works{
-				ID:       row[0],
-				Work:     row[common.WorkIndex],
-				WorkLink: row[common.WorkLinkIndex],
-			})
-		}
-	}
-
-	err = f.Save()
-	if err != nil {
-		return "", err
-	}
-	return "", nil
-}
-
-type Works struct {
-	ID       string
-	Work     string
-	WorkLink string
+	return files[0].Filename, nil
 }
 
 func (e *ExcelServiceImpl) MergeFileMd5(md5 string, fileName string) error {

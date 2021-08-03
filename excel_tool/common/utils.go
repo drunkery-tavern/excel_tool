@@ -218,3 +218,29 @@ func GetCurrentRow(sheetMap map[string]int64, sheetName string) (bool, int64) {
 		return ok, 0
 	}
 }
+
+const (
+	E    = 0
+	D    = 25
+	C    = 50
+	B    = 75
+	A    = 100
+	NULL = -1
+)
+
+func GetScore(rating string) int {
+	switch rating {
+	case "A":
+		return A
+	case "B":
+		return B
+	case "C":
+		return C
+	case "D":
+		return D
+	case "E":
+		return E
+	default:
+		return NULL
+	}
+}

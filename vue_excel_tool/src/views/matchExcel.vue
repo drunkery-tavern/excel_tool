@@ -16,8 +16,6 @@
                        :auto-upload="false"
                        show-file-list>
                 <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                <el-button style="margin-left: 50px;" size="small" type="success" @click="submitUpload">上传到服务器
-                </el-button>
                 <div style="margin-top: 20px" slot="tip" class="el-upload__tip">点击按钮选择文件进行上传，大文件上传较慢请耐心等待</div>
             </el-upload>
             <div v-show="progressFlag" class="head-img" style="margin-top: 15px">
@@ -31,6 +29,7 @@
                 <el-radio label="2" border>作品模式</el-radio>
             </el-radio-group>
         </div>
+        <el-button style="margin-top: 20px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
     </el-card>
 </template>
 
