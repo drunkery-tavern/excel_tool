@@ -10,7 +10,6 @@ import (
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"gorm.io/gorm"
 	"io/ioutil"
-	"log"
 	"mime/multipart"
 	"os"
 	"strconv"
@@ -288,7 +287,6 @@ func (e *ExcelServiceImpl) MergeWorkExcel(files []*multipart.FileHeader) (string
 	}
 	sheetList := file.GetSheetList()
 	for _, sheet := range sheetList {
-		log.Println(sheet)
 		sheetRows, err := file.GetRows(sheet)
 		if err != nil {
 			logging.Logger.Error(err)
@@ -299,11 +297,7 @@ func (e *ExcelServiceImpl) MergeWorkExcel(files []*multipart.FileHeader) (string
 				break
 			}
 			for _, workInfo := range workInfoSlice {
-				//log.Println(workInfo.ID)
-				//log.Println(row[0])
-				//log.Println("============end")
 				if workInfo.ID == row[0] {
-					log.Println(workInfo.Score)
 					err := file.SetCellValue(sheet, fmt.Sprintf("J%d", rowNum+2), workInfo.WorkLink)
 					if err != nil {
 						logging.Logger.Error(err)
