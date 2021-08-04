@@ -8,7 +8,7 @@
         <el-card>
             <el-row>
                 <el-col :span="6">
-                    <el-image src="http://qiniu.drunkery.cn/logo.png"></el-image>
+                    <el-image style="margin-top: 20px" src="http://qiniu.drunkery.cn/logo.png"></el-image>
                 </el-col>
                 <el-col :span="18">
                     <el-row align="center">
@@ -17,12 +17,14 @@
                         <el-tag style="margin-left: 20px" effect="dark">开源</el-tag>
                     </el-row>
                     <el-row style="margin-top: 30px">
-                        <div style="height: 120px;">
+                        <div style="height: 160px;">
                             <el-steps direction="vertical">
                                 <el-step icon="el-icon-s-finance" status="finish" title="匹配用户"
                                          description="文件采用分片上传的方式，可一键匹配企业微信群中未激活课程的用户，该工具需配合KeyboardMan一起使用"></el-step>
-                                <el-step icon="el-icon-s-order" status="wait" title="表格合并"
-                                         description="敬请期待..."></el-step>
+                                <el-step icon="el-icon-s-order" status="finish" title="表格合并"
+                                         description="Excel的VLOOKUP函数功能自动化实现"></el-step>
+                                <el-step icon="el-icon-s-management" status="finish" title="班期拆分"
+                                         description="将班期总表激活的用户按班期拆分成若干sheet"></el-step>
                             </el-steps>
                         </div>
                     </el-row>

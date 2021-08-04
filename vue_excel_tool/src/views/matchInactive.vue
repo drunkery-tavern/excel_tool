@@ -1,6 +1,9 @@
 <template>
     <div>
-        <el-card style="height: 100%">
+        <el-card style="height: 100%" v-loading="loading"
+                 element-loading-text="数据拼命解析中"
+                 element-loading-spinner="el-icon-loading"
+                 element-loading-background="rgba(0, 0, 0, 0.8)">
             <div>
                 <div style="display: flex;justify-content: space-between">
                     <div>
@@ -18,8 +21,8 @@
                             <uploader-drop>
                                 <p>将文件拖放到此处进行上传或</p>
                                 <uploader-btn style=" display: inline-block;line-height: 1;white-space: nowrap;cursor: pointer;text-align: center;
-                                    box-sizing: border-box; margin: 0;transition: .1s;font-weight: 500; padding: 12px 20px;
-                                    font-size: 12px; border-radius: 4px;    color: #FFF;background-color: #409EFF;border-color: #409EFF;">
+                                    box-sizing: border-box; margin: 0;transition: .1s;font-weight: 500; padding: 8px 0;
+                                    font-size: 12px; border-radius: 4px;    color: #FFF;background-color: #409EFF;border-color: #409EFF;width: 70px;height: 30px">
                                     选择文件
                                 </uploader-btn>
                             </uploader-drop>
@@ -89,6 +92,7 @@
                     <el-form-item label="群成员">
                         <el-input style="width: 600px"
                                   type="textarea"
+                                  :rows="4"
                                   placeholder="请将群成员粘贴到此处"
                                   v-model="textarea">
                         </el-input>
@@ -115,7 +119,7 @@
                     </el-form-item>
                 </el-form>
 
-                <el-button v-show="showForm" type="primary" icon="el-icon-s-check" @click="doExport">匹配未激活用户
+                <el-button v-show="showForm" type="primary" icon="el-icon-s-check" :loading="matching" @click="doExport">匹配未激活用户
                 </el-button>
                 <div v-show="this.resultString.length !== 0">
                     <el-input style="margin-top: 20px;width: 40%"
@@ -149,6 +153,7 @@
         name: "matchInactive",
         data() {
             return {
+                matching :false,
                 isUploaded: false,
                 md5: '',
                 resultString: "",
@@ -232,6 +237,7 @@
             },
             // 上传成功
             async onFileSuccess(rootFile, file) {
+                this.loading = true;
                 const response = await this.getRequest("/excel/simple/merge", {
                     md5: file.uniqueIdentifier,
                     fileName: file.name
@@ -272,6 +278,7 @@
                     this.$message.error("群成员不能为空");
                     return false
                 }
+                this.matching = true;
                 const formdata = new FormData();
                 formdata.append("filename", this.file.name);
                 formdata.append("textarea", this.textarea);
@@ -281,6 +288,7 @@
                 this.postRequest("/excel/inactive/user", formdata).then(res=>{
                     if (res.data.code === 1000) {
                         console.log(res);
+                        this.matching = false;
                         if (res.data.data.result.trim().length === 0) {
                             this.$message.success("该群全部成员都已激活！")
                         } else {

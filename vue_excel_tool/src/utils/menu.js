@@ -50,7 +50,7 @@ export function generaMenu() {
       children: [
         {
           component: scheduleSplit,
-          icon: "el-icon-s-order",
+          icon: "el-icon-s-management",
           name: "班期拆分",
           path: '/schedule-split'
         }
