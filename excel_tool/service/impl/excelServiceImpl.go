@@ -344,7 +344,10 @@ func (e *ExcelServiceImpl) MergeWorkExcel2(files []*multipart.FileHeader) (strin
 		return "", err
 	}
 	var workInfoSlice []*WorkInfo
-	for currentRow := range rows {
+	for currentRow, row := range rows {
+		if len(row) == 0 {
+			break
+		}
 		id, err := f.GetCellValue(f.GetSheetName(common.DefaultSheetIndex), fmt.Sprintf("B%d", currentRow+2))
 		if err != nil {
 			logging.Logger.Error(err)
