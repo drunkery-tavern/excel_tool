@@ -33,9 +33,7 @@
             </el-radio-group>
         </div>
         <el-button style="margin-top: 20px;" size="small" type="success" @click="submitUpload">上传服务器</el-button>
-        <el-divider content-position="left">
-
-        </el-divider>
+        <div><el-divider content-position="left"></el-divider></div>
         <div style="margin-top: 15px;font-size: 14px;border: 1px dashed #c4d9d0;border-radius: 6px;">
             <span class="el-icon-warning-outline" style="margin-left: 20px;margin-top: 15px;font-size: 17px;font-weight: bolder"> 使用须知</span>
             <div style="margin-left: 20px;margin-top: 10px">
@@ -49,7 +47,7 @@
                     <span style="color: #d96421;font-weight: bolder">3、关于模式的选择,BD模式为使用渠道匹配大区,作品模式为使用用户ID匹配作品链接和作品得分;</span>
                 </div>
                 <div style="margin-top: 10px">
-                    <span style="color: #d96421;font-weight: bolder">4、作品模式被引用的表格为左侧菜单栏班期拆分功能导出的表,</span>
+                    <span style="color: #d96421;font-weight: bolder">4、作品模式引用的表格为左侧菜单栏班期拆分功能导出的表；</span>
                 </div>
                 <div style="margin-bottom: 20px">
                     <span>  </span>

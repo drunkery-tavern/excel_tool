@@ -163,7 +163,8 @@ func (e *ExcelServiceImpl) MergeExcel(files []*multipart.FileHeader, model strin
 	case "1":
 		return e.MergeBDExcel(files)
 	case "2":
-		return e.MergeWorkExcel(files)
+		//return e.MergeWorkExcel(files)
+		return e.MergeWorkExcel2(files)
 	default:
 		return "", errors.New("未知模式")
 	}
@@ -279,6 +280,92 @@ func (e *ExcelServiceImpl) MergeWorkExcel(files []*multipart.FileHeader) (string
 			Score:    common.GetScore(scores[index]),
 			WorkLink: workLinks[index],
 		})
+	}
+	file, err := excelize.OpenFile(common.FileSavePath + files[0].Filename)
+	if err != nil {
+		logging.Logger.Error(err)
+		return "", err
+	}
+	sheetList := file.GetSheetList()
+	for _, sheet := range sheetList {
+		sheetRows, err := file.GetRows(sheet)
+		if err != nil {
+			logging.Logger.Error(err)
+			return "", err
+		}
+		for rowNum, row := range sheetRows[1:] {
+			if len(row) == 0 {
+				break
+			}
+			for _, workInfo := range workInfoSlice {
+				if workInfo.ID == row[0] {
+					err := file.SetCellValue(sheet, fmt.Sprintf("J%d", rowNum+2), workInfo.WorkLink)
+					if err != nil {
+						logging.Logger.Error(err)
+						return "", err
+					}
+					err = file.SetCellInt(sheet, fmt.Sprintf("I%d", rowNum+2), workInfo.Score)
+					if err != nil {
+						logging.Logger.Error(err)
+						return "", err
+					}
+				}
+			}
+		}
+		////删除id列
+		//err = file.RemoveCol(sheet, "A")
+		//if err != nil {
+		//	logging.Logger.Error(err)
+		//	return "", err
+		//}
+	}
+	err = file.Save()
+	if err != nil {
+		logging.Logger.Error(err)
+		return "", err
+	}
+	return files[0].Filename, nil
+}
+
+func (e *ExcelServiceImpl) MergeWorkExcel2(files []*multipart.FileHeader) (string, error) {
+	type WorkInfo struct {
+		ID       string
+		Score    int
+		WorkLink string
+	}
+	//获取ID对应的作品和链接
+	f, err := excelize.OpenFile(common.FileSavePath + files[1].Filename)
+	if err != nil {
+		logging.Logger.Error(err)
+		return "", err
+	}
+	rows, err := f.GetRows(f.GetSheetName(common.DefaultSheetIndex))
+	if err != nil {
+		return "", err
+	}
+	var workInfoSlice []*WorkInfo
+	for currentRow := range rows {
+		id, err := f.GetCellValue(f.GetSheetName(common.DefaultSheetIndex), fmt.Sprintf("B%d", currentRow+2))
+		if err != nil {
+			logging.Logger.Error(err)
+			return "", err
+		}
+		score, err := f.GetCellValue(f.GetSheetName(common.DefaultSheetIndex), fmt.Sprintf("K%d", currentRow+2))
+		if err != nil {
+			logging.Logger.Error(err)
+			return "", err
+		}
+		workLink, err := f.GetCellValue(f.GetSheetName(common.DefaultSheetIndex), fmt.Sprintf("F%d", currentRow+2))
+		if err != nil {
+			logging.Logger.Error(err)
+			return "", err
+		}
+		workInfoSlice = append(workInfoSlice, &WorkInfo{
+			ID:       id,
+			Score:    common.GetScore(score),
+			WorkLink: workLink,
+		})
+
 	}
 	file, err := excelize.OpenFile(common.FileSavePath + files[0].Filename)
 	if err != nil {
