@@ -50,6 +50,9 @@ import {
 } from 'element-ui';
 import {generaMenu} from "./utils/menu";
 import axios from "axios";
+import VueParticles from 'vue-particles';
+
+Vue.use(VueParticles);
 
 Vue.use(Button);
 Vue.use(Input);
