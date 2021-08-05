@@ -57,7 +57,50 @@
                 </el-col>
                 <el-col :span="16">
                     <el-card style="margin-top: 15px;margin-left: 15px;height: 300px">
-                        <el-empty description="虚位以待"></el-empty>
+                        <!-- 表格展示 -->
+                        <el-table
+                                border
+                                :data="fileList"
+                                v-loading="loading"
+                                height="225px"
+                                stripe
+                                size="mini"
+                        >
+                            <!-- 表格列 -->
+                            <el-table-column prop="filename" label="文件名" align="center"/>
+                            <el-table-column prop="file_size" label="大小" align="center" width="150">
+                                <template slot-scope="scope">
+                                    <el-tag v-if="(scope.row.file_size / 1024 / 1024) < 1" effect="dark">
+                                        {{ scope.row.file_size / 1024 | numFilter }} kb
+                                    </el-tag>
+                                    <el-tag v-else effect="dark" type="danger">
+                                        {{ scope.row.file_size / 1024 /1024 | numFilter }} Mb
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="last_update_time"
+                                    label="最后修改时间"
+                                    align="center">
+                                <template slot-scope="scope">
+                                    <i class="el-icon-time" style="margin-right:5px"/>
+                                    {{ scope.row.last_update_time}}
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <h3 style="margin-left:20px;float: left;">已上传的文件列表<span style="font-size: 14px;margin-left: 20px;color: #d96421"> 多人同时操作时，请勿使用同名文件</span></h3>
+                        <!-- 分页 -->
+                        <el-pagination
+                                class="pagination-container"
+                                background
+                                @size-change="sizeChange"
+                                @current-change="currentChange"
+                                :current-page="current"
+                                :page-size="size"
+                                :total="count"
+                                :page-sizes="[5, 10]"
+                                layout="total, sizes, prev, pager, next, jumper"
+                        />
                     </el-card>
                 </el-col>
             </el-row>
@@ -67,14 +110,48 @@
 <script>
     export default {
         name: "home",
+        created() {
+            this.listFiles();
+        },
         data() {
             return {
+                fileList: [],
+                loading: true,
+                current: 1,
+                size: 10,
+                count: 0,
                 images: [
                     "http://qiniu.drunkery.cn/home.jpg",
                     "http://qiniu.drunkery.cn/home1.jpg",
                     "http://qiniu.drunkery.cn/wallhaven-6kdgpq.jpg",
                     "http://qiniu.drunkery.cn/wallhaven-rddgwm.jpg",
                 ]
+            }
+        },
+        methods: {
+            sizeChange(size) {
+                this.size = size;
+                this.listFiles();
+            },
+            currentChange(current) {
+                this.current = current;
+                this.listFiles();
+            },
+            async listFiles() {
+                const res = await this.getRequest("/excel/system/files", {
+                    current: this.current,
+                    size: this.size,
+                });
+                console.log(res.data);
+                this.loading = false;
+                this.fileList = res.data.data.fileList;
+                this.count = res.data.data.count
+            }
+        },
+        filters: {
+            numFilter(value) {
+                // 截取当前数据到小数点后两位
+                return parseFloat(value).toFixed(2)
             }
         }
     }
@@ -92,5 +169,11 @@
         opacity: 0.75;
         line-height: 200px;
         margin: 0;
+    }
+
+    .pagination-container {
+        float: right;
+        margin-top: 1.25rem;
+        margin-bottom: 1.25rem;
     }
 </style>

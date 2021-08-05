@@ -326,7 +326,7 @@
                     index: value,
                 };
                 formdata.append("index", params.index);
-                postRequest("/excel/table", formdata)
+                this.postRequest("/excel/table", formdata)
                     .then(res => {
                         console.log(res);
                         this.tableHeader = res.data.sheet.table_header;
