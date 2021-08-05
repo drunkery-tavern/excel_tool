@@ -28,6 +28,7 @@ const (
 	Check           = "/simple/check"
 	Merge           = "/simple/merge"
 	ScheduleUpload  = "/schedule/upload"
+	SystemFiles     = "/system/files"
 )
 
 const (

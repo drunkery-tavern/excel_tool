@@ -18,6 +18,7 @@ const (
 	ReadMd5Failed
 	MergeExcelFail
 	ScheduleSplitFail
+	GetAllFilesFail
 )
 
 const (
@@ -33,6 +34,7 @@ var Error = map[ErrorCode]error{
 	ReadMd5Failed:        errors.New("读取Md5失败"),
 	MergeExcelFail:       errors.New("合并Excel失败"),
 	ScheduleSplitFail:    errors.New("班期拆分失败"),
+	GetAllFilesFail:      errors.New("获取文件列表失败"),
 }
 
 func GetMsg(code ErrorCode) string {

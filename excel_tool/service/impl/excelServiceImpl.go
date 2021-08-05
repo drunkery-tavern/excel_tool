@@ -21,6 +21,33 @@ type ExcelServiceImpl struct {
 	wg sync.WaitGroup
 }
 
+func (e *ExcelServiceImpl) GetAllFiles(currentStr string, sizeStr string) (*models.ResponseData, error) {
+	current, _ := strconv.Atoi(currentStr)
+	size, _ := strconv.Atoi(sizeStr)
+	fileList, err := ioutil.ReadDir(common.FileSavePath)
+	if err != nil {
+		return nil, err
+	}
+	var fileSlice []*models.File
+	for _, file := range fileList {
+		fileSlice = append(fileSlice, &models.File{
+			FileName: file.Name(),
+			//FileSize:       file.Size() >> 20,
+			FileSize:       file.Size(),
+			LastUpdateTime: file.ModTime().Format("2006-01-02 15:04:05"),
+		})
+	}
+	offset := (current - 1) * size
+	endIndex := offset + size
+	if offset+size > len(fileSlice) {
+		endIndex = len(fileSlice)
+	}
+	return &models.ResponseData{
+		FileList: fileSlice[offset:endIndex],
+		Count:    len(fileSlice),
+	}, nil
+}
+
 func (e *ExcelServiceImpl) ScheduleSplit(file *multipart.FileHeader) (filename string, err error) {
 	tableHeadData := []string{"id", "姓名", "省", "市", "区", "学校名", "年级", "班级", "得分", "作品链接"}
 	////"姓名","省","市","区","学校名","年级","班级","得分","作品链接"

@@ -9,6 +9,7 @@ type ResponseData struct {
 	Result            string       `json:"result"`
 	Count             int          `json:"count"`
 	TableHeader       [][]string   `json:"table_header"`
+	FileList          []*File      `json:"fileList"`
 }
 
 type Sheet struct {
@@ -23,4 +24,10 @@ type SheetList struct {
 
 type Headers struct {
 	Header []string `json:"header"`
+}
+
+type File struct {
+	FileName       string `json:"filename"`
+	FileSize       int64  `json:"file_size"`
+	LastUpdateTime string `json:"last_update_time"`
 }

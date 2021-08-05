@@ -22,5 +22,6 @@ func excelRouters(r *gin.Engine) {
 		excel.GET(common.Merge, ExcelApi.MergeFileMd5)
 
 		excel.POST(common.ScheduleUpload, ExcelApi.ScheduleUpload)
+		excel.GET(common.SystemFiles, ExcelApi.GetSystemFiles)
 	}
 }

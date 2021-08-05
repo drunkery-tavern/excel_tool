@@ -244,3 +244,9 @@ func GetScore(rating string) int {
 		return NULL
 	}
 }
+
+//// UTCTransLocal UTC时间转标准时间
+//func () UTCTransLocal(utcTime string) string {
+//	t, _ := time.Parse("2006-01-02T15:04:05.000+08:00", utcTime)
+//	return t.Local().Format("2006-01-02 15:04:05")
+//}

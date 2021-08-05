@@ -182,3 +182,15 @@ func (e *ExcelApi) ScheduleUpload(c *gin.Context) {
 	c.Header("Content-Transfer-Encoding", "binary")
 	c.File(common.FileSavePath + filename)
 }
+
+func (e *ExcelApi) GetSystemFiles(c *gin.Context) {
+	current := c.Query("current")
+	size := c.Query("size")
+	data, err := ExcelService.GetAllFiles(current, size)
+	if err != nil {
+		logging.Logger.Error(err)
+		e.RespFailWithDesc(c, http.StatusBadRequest, common.GetAllFilesFail)
+		return
+	}
+	e.RespSuccess(c, http.StatusOK, common.SuccessOK, data)
+}

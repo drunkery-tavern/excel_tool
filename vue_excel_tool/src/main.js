@@ -19,7 +19,8 @@ import {
   CarouselItem,
   Checkbox,
   Col,
-  Container, Divider,
+  Container,
+  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -37,15 +38,21 @@ import {
   Message,
   MessageBox,
   Option,
-  Progress, Radio, RadioGroup,
+  Pagination,
+  Progress,
+  Radio,
+  RadioGroup,
   Row,
   Scrollbar,
   Select,
   Step,
   Steps,
+  Table,
+  TableColumn,
   TabPane,
   Tabs,
-  Tag, Tooltip,
+  Tag,
+  Tooltip,
   Upload
 } from 'element-ui';
 import {generaMenu} from "./utils/menu";
@@ -94,6 +101,9 @@ Vue.use(Radio);
 Vue.use(RadioGroup);
 Vue.use(Divider);
 Vue.use(Tooltip);
+Vue.use(Pagination);
+Vue.use(Table);
+Vue.use(TableColumn);
 
 
 Vue.prototype.axios = axios;

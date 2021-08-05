@@ -16,4 +16,5 @@ type IExcelService interface {
 	MergeExcel(files []*multipart.FileHeader, model string) (filename string, err error)
 	GetTableHeader(files []*multipart.FileHeader) (*models.ResponseData, error)
 	ScheduleSplit(file *multipart.FileHeader) (filename string, err error)
+	GetAllFiles(current string, size string) (*models.ResponseData, error)
 }
