@@ -45,7 +45,7 @@ import {
   Steps,
   TabPane,
   Tabs,
-  Tag,
+  Tag, Tooltip,
   Upload
 } from 'element-ui';
 import {generaMenu} from "./utils/menu";
@@ -93,6 +93,7 @@ Vue.use(Empty);
 Vue.use(Radio);
 Vue.use(RadioGroup);
 Vue.use(Divider);
+Vue.use(Tooltip);
 
 
 Vue.prototype.axios = axios;
