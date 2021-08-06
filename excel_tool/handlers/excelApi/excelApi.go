@@ -37,6 +37,7 @@ func (e *ExcelApi) UploadExcel(c *gin.Context) {
 		_, err := os.Stat(savePath)
 		if !os.IsExist(err) {
 			if err := os.MkdirAll(savePath, os.ModePerm); err != nil {
+				common.MailAlarm(err.Error())
 				panic(err)
 			}
 		}
@@ -46,6 +47,7 @@ func (e *ExcelApi) UploadExcel(c *gin.Context) {
 	filename, err := ExcelService.MergeExcel(files, model)
 	if err != nil {
 		logging.Logger.Error(err)
+		common.MailAlarm(err.Error())
 		e.RespFailWithDesc(c, http.StatusBadRequest, common.MergeExcelFail)
 		return
 	}
@@ -62,6 +64,7 @@ func (e *ExcelApi) GetExcelData(c *gin.Context) {
 	data, err := ExcelService.GetExcelData(file, index)
 	logging.Logger.Debug("err:", err)
 	if err != nil {
+		common.MailAlarm(err.Error())
 		e.RespFailWithDesc(c, http.StatusBadRequest, common.GetTableDataFail)
 		return
 	}
@@ -80,6 +83,7 @@ func (e *ExcelApi) GetInactiveUser(c *gin.Context) {
 	data, err := ExcelService.GetInactiveUser(filename, textarea, columnIndex, exportColumnIndex, sheetIndex)
 	logging.Logger.Debug(data)
 	if err != nil {
+		common.MailAlarm(err.Error())
 		e.RespFailWithDesc(c, http.StatusBadRequest, common.GetInactiveUserFail)
 		return
 	}
@@ -99,12 +103,14 @@ func (e *ExcelApi) SimpleUploaderUpload(c *gin.Context) {
 	hasDir, _ := common.PathExists(chunkDir)
 	if !hasDir {
 		if err := common.CreateDir(chunkDir); err != nil {
+			common.MailAlarm(err.Error())
 			logging.Logger.Error("创建目录失败! err", err)
 		}
 	}
 	chunkPath := chunkDir + chunk.Filename + chunk.ChunkNumber
 	err = c.SaveUploadedFile(header, chunkPath)
 	if err != nil {
+		common.MailAlarm(err.Error())
 		logging.Logger.Error("切片创建失败! err", err)
 		e.RespFailWithDesc(c, http.StatusInternalServerError, common.SliceCreationFailed)
 		return
@@ -112,6 +118,7 @@ func (e *ExcelApi) SimpleUploaderUpload(c *gin.Context) {
 	chunk.CurrentChunkPath = chunkPath
 	err = ExcelService.SaveChunk(chunk)
 	if err != nil {
+		common.MailAlarm(err.Error())
 		logging.Logger.Error("切片创建失败! err", err)
 		e.RespFailWithDesc(c, http.StatusInternalServerError, common.SliceCreationFailed)
 		return
@@ -125,6 +132,7 @@ func (e *ExcelApi) CheckFileMd5(c *gin.Context) {
 	md5 := c.Query("md5")
 	err, chunks, isDone := ExcelService.CheckFileMd5(md5)
 	if err != nil {
+		common.MailAlarm(err.Error())
 		logging.Logger.Error("md5读取失败! err", err)
 		e.RespFailWithDesc(c, http.StatusInternalServerError, common.ReadMd5Failed)
 		return
@@ -142,6 +150,7 @@ func (e *ExcelApi) MergeFileMd5(c *gin.Context) {
 	logging.Logger.Debugf("md5:%s,filename:%s", md5, fileName)
 	err := ExcelService.MergeFileMd5(md5, fileName)
 	if err != nil {
+		common.MailAlarm(err.Error())
 		logging.Logger.Error("md5读取失败! err", err)
 		e.RespFailWithDesc(c, http.StatusInternalServerError, common.ReadMd5Failed)
 		return
@@ -152,6 +161,7 @@ func (e *ExcelApi) MergeFileMd5(c *gin.Context) {
 	data, err := ExcelService.ParseExcel(fileName)
 	if err != nil {
 		logging.Logger.Error("err:", err)
+		common.MailAlarm(err.Error())
 		e.RespFailWithDesc(c, http.StatusBadRequest, common.InvalidRequestParams)
 		return
 	}
@@ -165,6 +175,7 @@ func (e *ExcelApi) ScheduleUpload(c *gin.Context) {
 	log.Println(file.Filename)
 	_, err := os.Stat(savePath)
 	if !os.IsExist(err) {
+		common.MailAlarm(err.Error())
 		if err := os.MkdirAll(savePath, os.ModePerm); err != nil {
 			panic(err)
 		}
@@ -174,6 +185,7 @@ func (e *ExcelApi) ScheduleUpload(c *gin.Context) {
 	filename, err := ExcelService.ScheduleSplit(file)
 	if err != nil {
 		logging.Logger.Error(err)
+		common.MailAlarm(err.Error())
 		e.RespFailWithDesc(c, http.StatusBadRequest, common.ScheduleSplitFail)
 		return
 	}
@@ -188,6 +200,7 @@ func (e *ExcelApi) GetSystemFiles(c *gin.Context) {
 	size := c.Query("size")
 	data, err := ExcelService.GetAllFiles(current, size)
 	if err != nil {
+		common.MailAlarm(err.Error())
 		logging.Logger.Error(err)
 		e.RespFailWithDesc(c, http.StatusBadRequest, common.GetAllFilesFail)
 		return

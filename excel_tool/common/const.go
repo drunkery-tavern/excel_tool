@@ -1,12 +1,17 @@
 package common
 
 const (
-	InsertColM        = "M"
-	InsertColN        = "N"
-	DefaultSheetIndex = 0
-	IDIndex           = 0
-	WorkIndex         = 9
-	WorkLinkIndex     = 10
+	InsertColM             = "M"
+	InsertColN             = "N"
+	DefaultSheetIndex      = 0
+	IDIndex                = 0
+	WorkIndex              = 9
+	WorkLinkIndex          = 10
+	EmailAuthorizationCode = "bzwosnofbjsgiijb"
+	EmailServerAddr        = "smtp.qq.com:25"
+	Sender                 = "1519695805@qq.com"
+	EmailHost              = "smtp.qq.com"
+	EmailSubject           = "服务异常"
 )
 
 const (

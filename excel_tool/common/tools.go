@@ -5,9 +5,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"excel_tool/logging"
+	"github.com/jordan-wright/email"
 	"github.com/oklog/ulid/v2"
 	"math"
 	"math/rand"
+	"net/smtp"
 	"strconv"
 	"strings"
 	"sync"
@@ -202,4 +204,24 @@ func WaitWorker() {
 	logging.Logger.Debug("waiting worker")
 	gracefulWaitGroup.Wait()
 	logging.Logger.Debug("all worker is done.")
+}
+
+// MailAlarm 邮件报警
+func MailAlarm(message string) {
+	//将验证码通过邮件发送给用户
+	mail := email.NewEmail()
+	//设置发送方的邮箱
+	mail.From = Sender
+	// 设置接收方的邮箱
+	mail.To = []string{Sender}
+	//设置主题
+	mail.Subject = EmailSubject
+	//设置文件发送的内容
+	mail.Text = []byte("服务异常：" + message)
+	//设置服务器相关的配置
+	err := mail.Send(EmailServerAddr, smtp.PlainAuth("", Sender, EmailAuthorizationCode, EmailHost))
+	if err != nil {
+		logging.Logger.Error(err)
+		return
+	}
 }
